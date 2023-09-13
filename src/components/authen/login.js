@@ -19,32 +19,38 @@ const Login = () => {
     e.preventDefault();
 
     // Send the form data to the backend using Axios
-    axios
-      .post("http://localhost:3300/user/signIn", formData)
-      .then((response) => {
-        if (response.status === 200) {
-          // Signup was successful
-          // You can show a success message to the user
-          toast.success("login successfully");
-          localStorage.setItem("listing", JSON.stringify([formData]));
-          // Reset the form data to empty values
-          setFormData({
-            userName: "",
-            EmailAddress: "",
-            password: "",
-          });
+    formData
+      ? (axios
+          .post("http://localhost:3300/user/signIn", formData)
+          .then((response) => {
+            if (response.status === 200) {
+              // Signup was successful
+              // You can show a success message to the user
 
-          navigate("/productlisting");
-        } else {
-          // Handle other status codes if needed
-          toast.error("signup failed");
-        }
-      })
-      .catch((error) => {
-        // Handle network errors or other errors
-        console.error("Error:", error);
-        toast.error("please first signup the form");
-      });
+              toast.success("login successfully");
+              localStorage.setItem(
+                "listing",
+                JSON.stringify(response.data.Profile)
+              );
+              localStorage.setItem("JWTtoken", response.data.JWTtoken);
+
+              // Reset the form data to empty values
+              setFormData({
+                userName: "",
+                EmailAddress: "",
+                password: "",
+              });
+              navigate("/");
+            } else {
+              // Handle other status codes if needed
+              toast.error("signup failed");
+            }
+          })
+          .catch((error) => {
+            // Handle network errors or other errors
+            console.error("Error:", error);
+          }))
+      : (toast.error("please first signup the form"))
   };
 
   return (
