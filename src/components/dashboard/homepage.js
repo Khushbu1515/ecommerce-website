@@ -1,6 +1,6 @@
 import React from "react";
 import "./file.css";
-
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
@@ -8,6 +8,16 @@ import ecomm from "../assets/ecomm.png";
 const Homepage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+
+  const [product, setProduct] = useState([]);
+  const [category, setCategory] = useState([]);
+  const [modalData, setModalData] = useState({
+    category: "",
+
+    product_name: "",
+    description: "",
+    price: null,
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Initialize with false for not logged in
 
@@ -28,8 +38,30 @@ const Homepage = () => {
   };
 
   const closeModal = () => {
+    if (modalData.length > 0) {
+      axios
+        .get("http://localhost:3300/product/add_product") // Replace with your actual category API endpoint
+        .then((response) => {
+          if (response.status === 200) {
+            // Assuming your API returns an array of categories
+
+            setProduct(response.data.data);
+            setIsModalOpen(false);
+          } else {
+            // Handle other status codes if needed
+            toast.error("Failed to fetch product");
+          }
+        })
+        .catch((error) => {
+          // Handle network errors or other errors
+          console.error("Error:", error);
+          toast.error("Failed to fetch product");
+        });
+    }
+
     setIsModalOpen(false);
   };
+
   useEffect(() => {
     const userData = localStorage.getItem("listing");
 
@@ -43,14 +75,64 @@ const Homepage = () => {
       }
     }
   }, []);
-  const handleSaveProduct = () => {
-    
-    closeModal();
-  };
+  useEffect(() => {
+    axios
+      .get("http://localhost:3300/category/getAll") // Replace with your actual category API endpoint
+      .then((response) => {
+        if (response.status === 200) {
+          // Assuming your API returns an array of categories
 
+          setCategory(response.data.data);
+        } else {
+          // Handle other status codes if needed
+          toast.error("Failed to fetch categories");
+        }
+      })
+      .catch((error) => {
+        // Handle network errors or other errors
+        console.error("Error:", error);
+        toast.error("Failed to fetch categories");
+      });
+  }, []);
+  const handleSaveProduct = () => {
+    axios
+      .post("http://localhost:3300/product/add_product", modalData)
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success("create product successfully");
+
+          // Reset the form data to empty values
+          setModalData({
+            category: "",
+
+            product_name: "",
+            description: "",
+            price: "",
+          });
+          closeModal();
+        } else {
+          // Handle other status codes if needed
+          toast.error("signup failed");
+        }
+      })
+      .catch((error) => {
+        // Handle network errors or other errors
+        console.error("Error:", error);
+      });
+  };
+  const handlechange = (e) => {
+    const { name, value } = e.target;
+    setModalData({ ...modalData, [name]: value });
+  };
+  const handlepricechange = (e) => {
+    const { name, value } = e.target;
+    const price = parseInt(value);
+    setModalData({ ...modalData, [name]: price });
+  };
   const handleclick = () => {
     toast.error("please first login");
   };
+
   return (
     <div>
       <nav className="navbar">
@@ -114,26 +196,69 @@ const Homepage = () => {
                 <h2>Create Product</h2>
                 <form>
                   <div className="form-group">
-                    <label htmlFor="category">Categories</label>
-                    <input type="text" id="categories" className="form-control" />
+                    <label htmlFor="category">Category:</label>
+                    <select
+                      id="category"
+                      className="form-control"
+                      name="category"
+                      value={modalData.category}
+                      onChange={handlechange}
+                    >
+                      <option value="">Select a category</option>
+
+                      {category && category.length > 0 ? (
+                        category.map((categories, index) => {
+                          if (categories.c_id === null) {
+                            return (
+                              <option key={index} value={categories.c_id}>
+                                {categories.Name}
+                              </option>
+                            );
+                          }
+                        })
+                      ) : (
+                        <option value="">no categories available</option>
+                      )}
+                    </select>
                   </div>
+                  <br />
+
                   <div className="form-group">
-                    <label htmlFor="c_id">c_id</label>
-                    <input type="text" id="c_id" className="form-control" />
+                    <label htmlFor="product_name">product_name:</label>
+                    <input
+                      type="text"
+                      id="product_name"
+                      className="form-control"
+                      name="product_name"
+                      value={modalData.product_name}
+                      onChange={handlechange}
+                    />
                   </div>
+                  <br />
                   <div className="form-group">
-                    <label htmlFor="product_name">product_name</label>
-                    <input type="text" id="product_name" className="form-control" />
+                    <label htmlFor="description">description:</label>
+                    <input
+                      type="text"
+                      id="description"
+                      className="form-control"
+                      name="description"
+                      value={modalData.description}
+                      onChange={handlechange}
+                    />
                   </div>
+                  <br />
                   <div className="form-group">
-                    <label htmlFor="c_id">C_ID</label>
-                    <input type="text" id="c_id" className="form-control" />
+                    <label htmlFor="c_id">price:</label>
+                    <input
+                      type="number"
+                      id="price"
+                      className="form-control"
+                      name="price:"
+                      value={modalData.price}
+                      onChange={handlepricechange}
+                    />
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="c_id">C_ID</label>
-                    <input type="text" id="c_id" className="form-control" />
-                  </div>
-                  
+                  <br />
                 </form>
                 <div className="modal-footer">
                   <button className="btn btn-secondary" onClick={closeModal}>
@@ -158,6 +283,23 @@ const Homepage = () => {
         </div>
       )}
 
+      {product && product.length > 0 ? (
+        <div>
+          {product.map((item, index) => (
+            <div class="card" key={index}>
+              <img src={item.imageURL} class="card-img-top" alt="" />
+              <div class="card-body">
+                <h5 class="card-title">categories: {item.category}</h5>
+                <h5 class="card-title">Product Name: {item.product_name}</h5>
+                <p class="card-text">Description: {item.description}</p>
+                <p class="card-text">Price: {item.price}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No products available.</p>
+      )}
       <footer>
         <div class="footer-content">
           <p>@copy; 2023 MATRIX MEDIA SOLUTION PVT. LTD.</p>
