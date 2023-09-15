@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import ecomm from "../assets/ecomm.png";
+
+
 const Homepage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -13,10 +15,9 @@ const Homepage = () => {
   const [category, setCategory] = useState([]);
   const [modalData, setModalData] = useState({
     category: "",
-
     product_name: "",
     description: "",
-    price: null,
+    price: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Initialize with false for not logged in
@@ -38,30 +39,41 @@ const Homepage = () => {
   };
 
   const closeModal = () => {
-    if (modalData.length > 0) {
-      axios
-        .get("http://localhost:3300/product/add_product") // Replace with your actual category API endpoint
-        .then((response) => {
-          if (response.status === 200) {
-            // Assuming your API returns an array of categories
-
-            setProduct(response.data.data);
-            setIsModalOpen(false);
-          } else {
-            // Handle other status codes if needed
-            toast.error("Failed to fetch product");
-          }
-        })
-        .catch((error) => {
-          // Handle network errors or other errors
-          console.error("Error:", error);
-          toast.error("Failed to fetch product");
-        });
-    }
-
     setIsModalOpen(false);
   };
+  useEffect(() => {
+    axios
+      .get("http://localhost:3300/product/getAll") // Replace with your actual category API endpoint
+      .then((response) => {
+        if (response.status === 200) {
+          setProduct(response.data.data)
+          }
+    //       // console.log("productvvbvbvbb",product);
+    //       const filteredproduct = category.find(
+    //         (cat) => cat.c_id === category.cat_id
+    //       );
+    // // console.log("<..........filter",filteredproduct);
+          
 
+    //       if (modalData) {
+    //        product.c_id=modalData.category;
+        
+    //       }
+        else {
+          // Handle other status codes if needed
+          // toast.error("Failed to fetch product");
+        }
+      })
+      .catch((error) => {
+        // Handle network errors or other errors
+        console.error("Error:", error);
+        toast.error("Failed to fetch product");
+      });
+    },[])
+      
+
+
+  console.log("<......category",category);
   useEffect(() => {
     const userData = localStorage.getItem("listing");
 
@@ -94,9 +106,24 @@ const Homepage = () => {
         toast.error("Failed to fetch categories");
       });
   }, []);
+ 
   const handleSaveProduct = () => {
+    const filteredCategories = category.find(
+      (categories) => categories.Name === modalData.category
+    );
+
+    const catIds = filteredCategories.cat_id;
+
+    if (catIds) {
+      modalData.category = catIds;
+    }
+    const backEndProduct = {};
+    backEndProduct.c_id = modalData.category;
+    backEndProduct.product_name = modalData.product_name;
+    backEndProduct.price = modalData.price;
+    backEndProduct.description = modalData.description;
     axios
-      .post("http://localhost:3300/product/add_product", modalData)
+      .post("http://localhost:3300/product/add_product", backEndProduct)
       .then((response) => {
         if (response.status === 200) {
           toast.success("create product successfully");
@@ -112,22 +139,23 @@ const Homepage = () => {
           closeModal();
         } else {
           // Handle other status codes if needed
-          toast.error("signup failed");
+          toast.error(" failed");
         }
       })
       .catch((error) => {
         // Handle network errors or other errors
+        toast.error("failed");
         console.error("Error:", error);
       });
   };
+
   const handlechange = (e) => {
     const { name, value } = e.target;
-    setModalData({ ...modalData, [name]: value });
+    setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
-  const handlepricechange = (e) => {
-    const { name, value } = e.target;
-    const price = parseInt(value);
-    setModalData({ ...modalData, [name]: price });
+  const handlepricechange = (price) => {
+    const cost = parseInt(price);
+    setModalData((prevData) => ({ ...prevData, price: cost }));
   };
   const handleclick = () => {
     toast.error("please first login");
@@ -210,7 +238,11 @@ const Homepage = () => {
                         category.map((categories, index) => {
                           if (categories.c_id === null) {
                             return (
-                              <option key={index} value={categories.c_id}>
+                              <option
+                                id="cat"
+                                key={index}
+                                value={categories.c_id}
+                              >
                                 {categories.Name}
                               </option>
                             );
@@ -255,7 +287,7 @@ const Homepage = () => {
                       className="form-control"
                       name="price:"
                       value={modalData.price}
-                      onChange={handlepricechange}
+                      onChange={(e) => handlepricechange(e.target.value)}
                     />
                   </div>
                   <br />
@@ -285,14 +317,16 @@ const Homepage = () => {
 
       {product && product.length > 0 ? (
         <div>
+        
           {product.map((item, index) => (
             <div class="card" key={index}>
               <img src={item.imageURL} class="card-img-top" alt="" />
               <div class="card-body">
-                <h5 class="card-title">categories: {item.category}</h5>
-                <h5 class="card-title">Product Name: {item.product_name}</h5>
-                <p class="card-text">Description: {item.description}</p>
-                <p class="card-text">Price: {item.price}</p>
+                <h5 class="card-title">product-id: {item.product_id}</h5>
+                <h5 class="card-title">category: {item.c_id}</h5>
+                <h5 class="card-title">product_name: {item.product_name}</h5>
+                <p class="card-title">description: {item.description}</p>
+                <p class="card-title">price: {item.price}</p>
               </div>
             </div>
           ))}
