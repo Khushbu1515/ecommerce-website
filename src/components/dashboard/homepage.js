@@ -10,8 +10,9 @@ import spice from "../assets/spice.jpeg";
 const Homepage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  // Initialize a state object to track quantities by product ID
-  const [quantities, setQuantities] = useState({});
+  
+const [productdata, SetProductData]=useState([])
+  
 
   const [product, setProduct] = useState([]);
   const [category, setCategory] = useState([]);
@@ -22,22 +23,18 @@ const Homepage = () => {
     price: "",
   });
   // State to track whether to show quantity controls
-  const [showQuantityControls, setShowQuantityControls] = useState(false);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Initialize with false for not logged in
 
-  // State to track the product for which quantity controls are displayed
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  
 
   // Function to handle login. This would typically set isLoggedIn to true.
   const handleLogin = () => {
     // Perform login logic here
     navigate("/login");
   };
-  const toggleQuantityControls = (productId) => {
-    setShowQuantityControls(true);
-    setSelectedProduct(productId);
-  };
+  
 
   // Function to handle logout. This would typically set isLoggedIn to false.
   const handleLogout = () => {
@@ -58,36 +55,14 @@ const Homepage = () => {
       .then((response) => {
         if (response.status === 200) {
           setProduct(response.data.data);
-        }
-        // Assuming you have category.cat_id available
-        //   const filteredProduct = p.find(
-        //     (product) => product.c_id === category.cat_id
-        //   );
-
-        //   if (filteredProduct) {
-
-        //     const categoryName = filteredProduct.Name;
-        //     setProduct(categoryName)
-
-        //   }
-        // }
-        // setModalData((prevData) => ({
-        //   ...prevData,
-        //   c_id: categoryName,
-        //   category: filteredProduct.c_id,
-        //   product_name: filteredProduct.product_name,
-        //   price: filteredProduct.price,
-        //   description: filteredProduct.description,
-
-        // }))}
-        else {
+        } else {
           toast.error("Category not found");
         }
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
       });
-  },[]);
+  }, []);
 
   useEffect(() => {
     const userData = localStorage.getItem("listing");
@@ -175,51 +150,28 @@ const Homepage = () => {
   const handleclick = () => {
     toast.error("please first login");
   };
-  // Function to increase the quantity for a specific product
-  const increaseQuantity = (productId) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: (prevQuantities[productId] || 0) + 1,
-    }));
-  };
-
-  // Function to decrease the quantity for a specific product
-  const decreaseQuantity = (productId) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: Math.max((prevQuantities[productId] || 0) - 1, 0), // Ensure quantity is non-negative
-    }));
-  };
-  const handlecart = () => {
-    const cart = {
-      product_id: product.product_id,
-      price: product.price,
-      quantity: quantities[product.product_id] || 1, // Default to 1 if quantity is not set
+  
+  const handleBuyNow = (item,category) => {
+    // Create an object to store the product details
+    const productDetails = {
+      productId: item.product_id,
+      categoryName: category.Name, // Implement a function to get the category name
+      productName: item.product_name,
+      description: item.description,
+      price: item.price,
     };
-    const customHeaders = {
-      'Authorization': 'JWTtoken', // Replace 'YourAuthToken' with your actual authorization token
-      'Content-Type': 'application/json', // Specify the content type if needed
-    };
-
-    axios
-      .post("http://localhost:3300/cart/addToCart", cart , {headers:customHeaders}) // Send the 'cart' object as JSON data
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success("Added to cart successfully");
-          // You can handle further actions here, such as updating the cart state
-          navigate("/cart")
-        } else {
-          // Handle other status codes if needed
-          toast.error("Failed to add to cart");
-        }
-      })
-      .catch((error) => {
-        // Handle network errors or other errors
-        toast.error("Faileddddd to add to cart");
-        console.error("Error:", error);
-      });
+  
+    // Convert the product details object to a JSON string
+    const productDetailsJSON = JSON.stringify(productDetails);
+  
+    // Save the JSON string in local storage with a unique key
+    localStorage.setItem(`product_${item.product_id}`, productDetailsJSON);
+  
+    // Redirect to the cart or wherever you want
+    navigate(`/cart/${item.product_id}/${item.c_id}`);
   };
-
+  
+  
   return (
     <div>
       <nav className="navbar">
@@ -282,42 +234,25 @@ const Homepage = () => {
                 <div class="card" key={index}>
                   <img src={spice} class="img" alt="" />
                   <div class="card-body">
-                    <h5 class="card-title">product-id: {item.product_id}</h5>
-                    <h5 class="card-title">category: {item.c_id}</h5>
+                    {category.map((categoryItem) => {
+                      if (item.c_id === categoryItem.cat_id) {
+                        return (
+                          <h5 class="card-title" key={categoryItem.cat_id} >
+                            Category: {categoryItem.Name}
+                          </h5>
+                        );
+                      }
+                      return null; // Return null for products without a matching category
+                    })}
                     <h5 class="card-title">
-                      product_name: {item.product_name}
+                      Product Name: {item.product_name}
                     </h5>
-                    <p class="card-title">description: {item.description}</p>
-                    <p class="card-title">price: {item.price}</p>
-
-                    <button onClick={handlecart}>Buy now</button>
-                    {showQuantityControls &&
-                    selectedProduct === item.product_id ? (
-                      <div>
-                        <button
-                          onClick={() => decreaseQuantity(item.product_id)}
-                        >
-                          -
-                        </button>
-                        <span> {quantities[item.product_id] || 1}</span>
-                        <button
-                          onClick={() => increaseQuantity(item.product_id)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        <button
-                          onClick={() =>
-                            toggleQuantityControls(item.product_id)
-                          }
-                        >
-                          Add +
-                        </button>
-                      </div>
-                    )}
+                    <p class="card-title">Description: {item.description}</p>
+                    <p class="card-title">Price: {item.price}</p>
                   </div>
+                  <button onClick={() => handleBuyNow(item,category)}>
+  Buy now
+</button>
                 </div>
               ))}
             </div>
