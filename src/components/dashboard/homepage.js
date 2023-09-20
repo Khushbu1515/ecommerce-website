@@ -11,7 +11,7 @@ const Homepage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   
-const [productdata, SetProductData]=useState([])
+// const [productdata, SetProductData]=useState([])
   
 
   const [product, setProduct] = useState([]);
@@ -151,24 +151,25 @@ const [productdata, SetProductData]=useState([])
     toast.error("please first login");
   };
   
-  const handleBuyNow = (item,category) => {
+  const handleBuyNow = (item) => {
     // Create an object to store the product details
-    const productDetails = {
+    const matchedCategory = category.find((categoryItem) => categoryItem.cat_id === item.c_id);
+    const productDetails = [{
       productId: item.product_id,
-      categoryName: category.Name, // Implement a function to get the category name
+      categoryName: matchedCategory.Name, // Implement a function to get the category name
       productName: item.product_name,
       description: item.description,
       price: item.price,
-    };
+    }];
   
     // Convert the product details object to a JSON string
     const productDetailsJSON = JSON.stringify(productDetails);
   
     // Save the JSON string in local storage with a unique key
-    localStorage.setItem(`product_${item.product_id}`, productDetailsJSON);
+    localStorage.setItem("productdata", productDetailsJSON);
   
     // Redirect to the cart or wherever you want
-    navigate(`/cart/${item.product_id}/${item.c_id}`);
+    navigate(`/cart/${productDetails.categoryName}`);
   };
   
   
@@ -250,7 +251,7 @@ const [productdata, SetProductData]=useState([])
                     <p class="card-title">Description: {item.description}</p>
                     <p class="card-title">Price: {item.price}</p>
                   </div>
-                  <button onClick={() => handleBuyNow(item,category)}>
+                  <button onClick={() => handleBuyNow(item)}>
   Buy now
 </button>
                 </div>
