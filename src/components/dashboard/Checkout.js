@@ -20,7 +20,7 @@ const Checkout = () => {
     Setproducts(productsdata)
 
     
-  }, [cart_id,product_id]);
+  }, [product_id]);
   
   return (
     <div>

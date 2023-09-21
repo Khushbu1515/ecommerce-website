@@ -169,7 +169,8 @@ const Homepage = () => {
     localStorage.setItem("productdata", productDetailsJSON);
   
     // Redirect to the cart or wherever you want
-    navigate(`/cart/${productDetails.categoryName}`);
+   
+    navigate(`/cart/${productDetails.map((items)=>items.productId)}`);
   };
   
   

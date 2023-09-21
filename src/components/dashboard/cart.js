@@ -9,23 +9,18 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const [showQuantityControls, setShowQuantityControls] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const cart = {};
+  const [cartslist, setCartsList] = useState([]);
   const [quantities, setQuantities] = useState({});
-
-  const { categoryName } = useParams();
+  const [carts, setCartsData] = useState([]);
+  const { productId } = useParams();
   const [product, setProduct] = useState([]);
 
   useEffect(() => {
     const existingdata = localStorage.getItem("productdata");
     const cartdata = JSON.parse(existingdata);
     setProduct(cartdata);
-  }, [categoryName]);
-
-  const toggleQuantityControls = (productId) => {
-    setShowQuantityControls(true);
-    setSelectedProduct(productId);
-  };
+  }, [productId]);
 
   // const handlecheckout = () => {
   //   axios
@@ -62,8 +57,37 @@ const Cart = () => {
     }));
   };
 
+  
+
+  const cartslisting = () => {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get("http://localhost:3300/cart/getAll", {
+        headers: customHeaders,
+      }) // Replace with your actual category API endpoint
+      .then((response) => {
+        if (response.status === 200) {
+          // Assuming your API returns an array of categories
+         
+          setCartsList(response.data.data);
+        } else {
+          // Handle other status codes if needed
+          toast.error("Failed to fetch categories");
+        }
+      })
+      .catch((error) => {
+        // Handle network errors or other errors
+        console.error("Error:", error);
+        toast.error("Failedffffffffffff to fetch categories");
+      });
+  };
+
   const handleclick = (item, quantities) => {
-    const selectedQuantity = quantities[item.product_id] || 1;
+    const selectedQuantity = quantities[item.productId] || 1;
     const updatedprice = selectedQuantity * item.price;
     const cart = {
       product_id: item.productId,
@@ -82,18 +106,17 @@ const Cart = () => {
       .then((response) => {
         if (response.status === 200) {
           toast.success("add the cart successfully");
-
+         
+          setCartsData(response.data.updatedCart);
           response.data.updatedCart.map((obj) => {
             localStorage.setItem(
               "cartdata",
               JSON.stringify(response.data.updatedCart)
             );
-          
-            navigate(`/checkout/${obj.cart_id}/${obj.product_id}`);
-        
-
-          // You can handle further actions here, such as updating the cart state
-        } )}else {
+            
+          });
+          cartslisting();
+        } else {
           // Handle other status codes if needed
           toast.error("Failed to add to cart");
         }
@@ -125,7 +148,7 @@ const Cart = () => {
           </ul>
           <div>
             <svg
-              onClick={handleclick}
+              // onClick={() => navigate(`/checkout/${products.productId}`)}
               xmlns="http://www.w3.org/2000/svg"
               width="25"
               height="50"
@@ -135,6 +158,12 @@ const Cart = () => {
             >
               <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
             </svg>
+
+            {cartslist.length > 0 ? (
+              <span>[{cartslist.length}]</span>
+            ) : (
+              <span>[{cartslist.length}]</span>
+            )}
           </div>
         </nav>
       </div>
@@ -156,31 +185,18 @@ const Cart = () => {
                   </p>
                   <p className="cart-price"> Price:{item.price}</p>
                   <p className="cart-description">
-                    {" "}
                     Description:{item.description}
                   </p>
 
-                  {showQuantityControls &&
-                  selectedProduct === item.product_id ? (
-                    <div className="add">
-                      <button onClick={() => decreaseQuantity(item.product_id)}>
-                        -
-                      </button>
-                      <span> {quantities[item.product_id] || 1}</span>
-                      <button onClick={() => increaseQuantity(item.product_id)}>
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <button
-                        className="add"
-                        onClick={() => toggleQuantityControls(item.product_id)}
-                      >
-                        Add +
-                      </button>
-                    </div>
-                  )}
+                  <div className="add">
+                    <button onClick={() => increaseQuantity(item.productId)}>
+                      ▲
+                    </button>
+                    <span> {quantities[item.productId] || 1}</span>
+                    <button onClick={() => decreaseQuantity(item.productId)}>
+                      ▼
+                    </button>
+                  </div>
                   <button
                     className="addcart"
                     onClick={() => handleclick(item, quantities)}

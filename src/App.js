@@ -13,8 +13,8 @@ function App() {
       <Route path="/" element={<Homepage />}></Route>
       <Route path="/signup" element={<Signup />}></Route>
       <Route path="/login" element={<Login />}></Route>
-    <Route path="/cart/:categoryName" element={<Cart />}></Route>
-    <Route path="/checkout/:cart_id/:product_id" element={<Checkout />}></Route>
+    <Route path="/cart/:productId" element={<Cart />}></Route>
+    <Route path="/checkout/:product_id" element={<Checkout />}></Route>
       
     </Routes>
   );
