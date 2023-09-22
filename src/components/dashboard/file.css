@@ -256,9 +256,6 @@ text-decoration: underline; /* Add underline on hover (optional) */
 }
 .addcart
 {
-  background-color: red;
-  color:white;
-  font-size: 15px;
   width:100px;
   margin-bottom: -21px;
 }
@@ -309,27 +306,25 @@ margin-left: 130px;
   width:50px;
   margin-bottom: -21px;
 }
-
-
- .arrow{
- 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height:25px;
-  width:150px;
-  border-radius:25px;
-  
+.adds{
+margin-left: 130px;
 }
-
-.labels {
-  font-size: 15px; /* Adjust the font size as needed */
+.placed
+{
+  margin-left: 1625px;
 }
-
-.spans {
-  font-size: 15px; 
-  margin-right: 240px;/* Adjust the font size as needed */
-  margin-left: 170px;
+.placed span 
+{
+  margin-right: 50px;
+  font-size: 18px;
 }
-
-  
+.placed button{
+  font-size: 18px;
+  background-color: #d8363a;
+  color: white;
+}
+.svg
+{
+  margin-left: 1500px;
+  margin-top: -25px;
+}

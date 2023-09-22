@@ -7,12 +7,12 @@ import ecomm from "../assets/ecomm.png";
 import "./file.css";
 import { useNavigate, useParams } from "react-router-dom";
 
-const Cart = () => {
+  export const Cart = () => {
   const navigate = useNavigate();
-  const cart = {};
+ 
   const [cartslist, setCartsList] = useState([]);
   const [quantities, setQuantities] = useState({});
-  const [carts, setCartsData] = useState([]);
+ 
   const { productId } = useParams();
   const [product, setProduct] = useState([]);
 
@@ -57,9 +57,13 @@ const Cart = () => {
     }));
   };
 
-  
+  useEffect(() => {
+    const cartsaccess = JSON.parse(localStorage.getItem("cartsdata"));
+    setCartsList(cartsaccess)
+    
+  }, []);
 
-  const cartslisting = () => {
+      const cartslisting = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -73,7 +77,12 @@ const Cart = () => {
         if (response.status === 200) {
           // Assuming your API returns an array of categories
          
-          setCartsList(response.data.data);
+          // setCartsList(response.data.data);
+          localStorage.setItem(
+            "cartsdata",
+            JSON.stringify(response.data.data)
+          );
+          
         } else {
           // Handle other status codes if needed
           toast.error("Failed to fetch categories");
@@ -85,7 +94,7 @@ const Cart = () => {
         toast.error("Failedffffffffffff to fetch categories");
       });
   };
-
+    
   const handleclick = (item, quantities) => {
     const selectedQuantity = quantities[item.productId] || 1;
     const updatedprice = selectedQuantity * item.price;
@@ -107,7 +116,7 @@ const Cart = () => {
         if (response.status === 200) {
           toast.success("add the cart successfully");
          
-          setCartsData(response.data.updatedCart);
+        
           response.data.updatedCart.map((obj) => {
             localStorage.setItem(
               "cartdata",
@@ -147,8 +156,10 @@ const Cart = () => {
             </li>
           </ul>
           <div>
+          {product.map((products,index) => (
+            <div key={index}>
             <svg
-              // onClick={() => navigate(`/checkout/${products.productId}`)}
+             onClick={() => navigate(`/checkout/${products.productId}`)}
               xmlns="http://www.w3.org/2000/svg"
               width="25"
               height="50"
@@ -158,6 +169,7 @@ const Cart = () => {
             >
               <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
             </svg>
+            </div>))}
 
             {cartslist.length > 0 ? (
               <span>[{cartslist.length}]</span>
@@ -214,4 +226,4 @@ const Cart = () => {
     </div>
   );
 };
-export default Cart;
+
