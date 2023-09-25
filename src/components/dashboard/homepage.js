@@ -42,6 +42,7 @@ const Homepage = () => {
     // Perform logout logic here
 
     setIsLoggedIn(false); // Set to false when the user logs out
+    localStorage.removeItem("JWTtoken")
   };
   const openModal = () => {
     setIsModalOpen(true);
@@ -65,8 +66,31 @@ const Homepage = () => {
       });
   }, []);
   useEffect(() => {
-    const cartsDatas = JSON.parse(localStorage.getItem("cartsdata"));
-    setCartList(cartsDatas)
+    // const cartsDatas = JSON.parse(localStorage.getItem("cartsdata"));
+    // setCartList(cartsDatas)
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get("http://localhost:3300/cart/getAll", {
+        headers: customHeaders,
+      }) // Replace with your actual category API endpoint
+      .then((response) => {
+        if (response.status === 200) {
+          setCartList(response.data.data);
+          setIsLoggedIn(true);
+        } else {
+          // Handle other status codes if needed
+          toast.error("Failed to fetch categories");
+        }
+      })
+      .catch((error) => {
+        // Handle network errors or other errors
+        console.error("Error:", error);
+        toast.error("Failed to fetch categories");
+      });
     
   }, []);
 
@@ -83,6 +107,28 @@ const Homepage = () => {
       }
     }
   }, []);
+  // useEffect(() => {
+  //   const jwtToken = localStorage.getItem("JWTtoken");
+  //   const customHeaders = {
+  //     authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+  //     "Content-Type": "application/json", // Specify the content type if needed
+  //   };
+  //   axios
+  //     .get("http://localhost:3300/user/getAll",{
+  //       headers: customHeaders,
+  //     })
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         setUser(response.data.data);
+  //       } else {
+  //         toast.error("Category not found");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching products:", error);
+  //     });
+  // }, []);
+  // console.log("userrrr",user)
   useEffect(() => {
     axios
       .get("http://localhost:3300/category/getAll") // Replace with your actual category API endpoint
@@ -226,6 +272,7 @@ const Homepage = () => {
               {user.map((item, index) => (
                 <div key={index}>
                   <input
+                  onClick={()=>navigate(`/update/${item.user_id}`)}
                     className="profileImage"
                     type="text"
                     value={`${item.firstName

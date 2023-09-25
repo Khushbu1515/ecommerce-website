@@ -28,11 +28,11 @@ const Login = () => {
               // You can show a success message to the user
 
               toast.success("login successfully");
-              localStorage.setItem(
-                "listing",
-                JSON.stringify(response.data.Profile)
-              );
-              localStorage.setItem("JWTtoken", response.data.JWTtoken);
+              // localStorage.setItem(
+              //   "listing",
+              //   JSON.stringify(response.data.Profile)
+              // );
+              // localStorage.setItem("JWTtoken", response.data.JWTtoken);
 
               // Reset the form data to empty values
               setFormData({
@@ -48,6 +48,7 @@ const Login = () => {
           })
           .catch((error) => {
             // Handle network errors or other errors
+            toast.error("not logined")
             console.error("Error:", error);
           }))
       : (toast.error("please first signup the form"))

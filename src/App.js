@@ -6,6 +6,7 @@ import Signup from "./components/authen/signup";
 import {Cart} from "./components/dashboard/cart";
 import Checkout from "./components/dashboard/Checkout";
 import Placedorder from "./components/dashboard/placedorder";
+import Updateprofile from "./components/authen/updateprofile";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Route path="/placedorder" element={<Placedorder />}></Route>
     <Route path="/cart/:productId" element={<Cart />}></Route>
     <Route path="/checkout/:product_id" element={<Checkout />}></Route>
+    
       
     </Routes>
   );

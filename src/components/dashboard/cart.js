@@ -22,25 +22,7 @@ import { useNavigate, useParams } from "react-router-dom";
     setProduct(cartdata);
   }, [productId]);
 
-  // const handlecheckout = () => {
-  //   axios
-  //     .post("http://localhost:3300/user/checkOut", cart) // Send the 'cart' object as JSON data
-  //     .then((response) => {
-  //       if (response.status === 200) {
-  //         toast.success("placed the order successfully");
-  //         // You can handle further actions here, such as updating the cart state
-  //         navigate("/checkout");
-  //       } else {
-  //         // Handle other status codes if needed
-  //         toast.error("Failed to add to cart");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       // Handle network errors or other errors
-  //       toast.error("Faileddddd to add to cart");
-  //       console.error("Error:", error);
-  //     });
-  // };
+ 
   // Function to increase the quantity for a specific product
   const increaseQuantity = (productId) => {
     setQuantities((prevQuantities) => ({
@@ -57,13 +39,13 @@ import { useNavigate, useParams } from "react-router-dom";
     }));
   };
 
-  useEffect(() => {
-    const cartsaccess = JSON.parse(localStorage.getItem("cartsdata"));
-    setCartsList(cartsaccess)
+  // useEffect(() => {
+  //   const cartsaccess = JSON.parse(localStorage.getItem("cartsdata"));
+  //   setCartsList(cartsaccess)
     
-  }, []);
+  // }, []);
 
-      const cartslisting = () => {
+  useEffect(()=> {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -77,7 +59,7 @@ import { useNavigate, useParams } from "react-router-dom";
         if (response.status === 200) {
           // Assuming your API returns an array of categories
          
-          // setCartsList(response.data.data);
+           setCartsList(response.data.data);
           localStorage.setItem(
             "cartsdata",
             JSON.stringify(response.data.data)
@@ -93,7 +75,7 @@ import { useNavigate, useParams } from "react-router-dom";
         console.error("Error:", error);
         toast.error("Failedffffffffffff to fetch categories");
       });
-  };
+  });
     
   const handleclick = (item, quantities) => {
     const selectedQuantity = quantities[item.productId] || 1;
@@ -124,7 +106,7 @@ import { useNavigate, useParams } from "react-router-dom";
             );
             
           });
-          cartslisting();
+        
         } else {
           // Handle other status codes if needed
           toast.error("Failed to add to cart");

@@ -127,6 +127,8 @@ text-decoration: underline; /* Add underline on hover (optional) */
     .form
     {
          flex:1;
+         margin-bottom: -470px;
+         margin-left: 200px;
             background-color: #fff;
             padding: 20px;
             border-radius: 50px;
@@ -327,4 +329,11 @@ margin-left: 130px;
 {
   margin-left: 1500px;
   margin-top: -25px;
+}
+.allitem
+{
+  background-color: red;
+  color:white;
+  font-size: 25px;
+  margin-left: 1900px;
 }
