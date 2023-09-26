@@ -32,7 +32,7 @@ const Login = () => {
               //   "listing",
               //   JSON.stringify(response.data.Profile)
               // );
-              // localStorage.setItem("JWTtoken", response.data.JWTtoken);
+              localStorage.setItem("JWTtoken", response.data.JWTtoken);
 
               // Reset the form data to empty values
               setFormData({
@@ -40,6 +40,7 @@ const Login = () => {
                 EmailAddress: "",
                 password: "",
               });
+              
               navigate("/");
             } else {
               // Handle other status codes if needed

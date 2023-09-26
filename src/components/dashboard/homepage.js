@@ -10,10 +10,11 @@ import spice from "../assets/spice.jpeg";
 
 const Homepage = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [cartlist , setCartList]= useState([])
-// const [productdata, SetProductData]=useState([])
-  
+
+   
+
 
   const [product, setProduct] = useState([]);
   const [category, setCategory] = useState([]);
@@ -53,12 +54,29 @@ const Homepage = () => {
   };
   useEffect(() => {
     axios
+      .get("http://localhost:3300/category/getAll")
+      .then((response) => {
+        if (response.status === 200) {
+          setCategory(response.data.data);
+         
+        } else {
+          toast.error("Category not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }, []);
+  useEffect(() => {
+    axios
       .get("http://localhost:3300/product/getAll")
       .then((response) => {
         if (response.status === 200) {
           setProduct(response.data.data);
+          setIsLoggedIn(true);
+
         } else {
-          toast.error("Category not found");
+          toast.error("product not found");
         }
       })
       .catch((error) => {
@@ -89,66 +107,36 @@ const Homepage = () => {
       .catch((error) => {
         // Handle network errors or other errors
         console.error("Error:", error);
-        toast.error("Failed to fetch categories");
+       
       });
     
   }, []);
 
+  
   useEffect(() => {
-    const userData = localStorage.getItem("listing");
-
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData));
-        setIsLoggedIn(true);
-      } catch (error) {
-        console.error("verification failed", error);
-        toast.error("verification failed");
-      }
-    }
-  }, []);
-  // useEffect(() => {
-  //   const jwtToken = localStorage.getItem("JWTtoken");
-  //   const customHeaders = {
-  //     authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
-  //     "Content-Type": "application/json", // Specify the content type if needed
-  //   };
-  //   axios
-  //     .get("http://localhost:3300/user/getAll",{
-  //       headers: customHeaders,
-  //     })
-  //     .then((response) => {
-  //       if (response.status === 200) {
-  //         setUser(response.data.data);
-  //       } else {
-  //         toast.error("Category not found");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching products:", error);
-  //     });
-  // }, []);
-  // console.log("userrrr",user)
-  useEffect(() => {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
     axios
-      .get("http://localhost:3300/category/getAll") // Replace with your actual category API endpoint
+      .get("http://localhost:3300/user/getuser",{
+        headers: customHeaders,
+      })
       .then((response) => {
         if (response.status === 200) {
-          // Assuming your API returns an array of categories
-
-          setCategory(response.data.data);
+          
+          setUser(response.data.profile);
+          setIsLoggedIn(true);
         } else {
-          // Handle other status codes if needed
-          toast.error("Failed to fetch categories");
+          toast.error("user not found");
         }
       })
       .catch((error) => {
-        // Handle network errors or other errors
-        console.error("Error:", error);
-        toast.error("Failed to fetch categories");
+        console.error("Error fetching products:", error);
       });
   }, []);
-
+console.log("userrrr",user)
   const handleSaveProduct = () => {
     const filteredCategories = category.find(
       (categories) => categories.Name === modalData.category
@@ -204,25 +192,8 @@ const Homepage = () => {
   };
   
   const handleBuyNow = (item) => {
-    // Create an object to store the product details
-    const matchedCategory = category.find((categoryItem) => categoryItem.cat_id === item.c_id);
-    const productDetails = [{
-      productId: item.product_id,
-      categoryName: matchedCategory.Name, // Implement a function to get the category name
-      productName: item.product_name,
-      description: item.description,
-      price: item.price,
-    }];
   
-    // Convert the product details object to a JSON string
-    const productDetailsJSON = JSON.stringify(productDetails);
-  
-    // Save the JSON string in local storage with a unique key
-    localStorage.setItem("productdata", productDetailsJSON);
-  
-    // Redirect to the cart or wherever you want
-   
-    navigate(`/cart/${productDetails.map((items)=>items.productId)}`);
+    navigate(`/cart/${item.product_id}`);
   };
   
   
@@ -244,62 +215,60 @@ const Homepage = () => {
           </li>
         </ul>
         <div>
-        {cartlist.length > 0 && ( // Check if cartlist is not empty
-        <svg
-          onClick={() => navigate(`/checkout/${cartlist[0].product_id}`)} // Use cartss.product_id from the first item
-          xmlns="http://www.w3.org/2000/svg"
-          width="25"
-          height="50"
-          fill="currentColor"
-          className="bi bi-cart"
-          viewBox="0 0 16 16"
-        >
-          <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-        </svg>
-      )
-        }
-
-
-        {cartlist && cartlist.length > 0 ? (
-          <span>[{cartlist.length}]</span>
-        ) : (
-          <span>[{cartlist.length}]</span>
-        )}
-      </div>
-        <div>
-          {isLoggedIn ? ( // Conditionally render based on the login status
-            <>
-              {user.map((item, index) => (
-                <div key={index}>
-                  <input
-                  onClick={()=>navigate(`/update/${item.user_id}`)}
-                    className="profileImage"
-                    type="text"
-                    value={`${item.firstName
-                      .charAt(0)
-                      .toUpperCase()} ${item.lastName.charAt(0).toUpperCase()}`}
-                  />
-                </div>
-              ))}
-
-              <button className="user-actions" onClick={handleLogout}>
-                Logout
-              </button>
-            </>
+        
+        {isLoggedIn && product.length > 0 && ( // Check if cartlist is not empty
+        <>
+          <svg
+            onClick={() => navigate(`/checkout/${product[0].product_id}`)}
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="50"
+            fill="currentColor"
+            className="bi bi-cart"
+            viewBox="0 0 16 16"
+          >
+            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+          </svg>
+          {cartlist && cartlist.length > 0 ? (
+            <span>[{cartlist.length}]</span>
           ) : (
-            <>
-              <button
-                className="user-actions"
-                onClick={() => navigate("/signup")}
-              >
-                Signup
-              </button>
-              <button className="user-actions" onClick={handleLogin}>
-                Login
-              </button>
-            </>
+            <span>[0]</span>
           )}
-        </div>
+        </>
+      )}
+      
+
+
+        
+      </div>
+      <div>
+  {isLoggedIn && Object.keys(user).length > 0 ? (
+    <>
+      <div>
+        <input
+          onClick={() => navigate(`/update/${user.user_id}`)}
+          className="profileImage"
+          type="text"
+          value={`${user.firstName.charAt(0).toUpperCase()} ${user.lastName.charAt(0).toUpperCase()}`}
+        />
+      </div>
+      <button className="user-actions" onClick={handleLogout}>
+        Logout
+      </button>
+    </>
+  ) : (
+    <>
+      <button className="user-actions" onClick={() => navigate("/signup")}>
+        Signup
+      </button>
+      <button className="user-actions" onClick={handleLogin}>
+        Login
+      </button>
+    </>
+  )}
+</div>
+
+          
       </nav>
       {isLoggedIn ? (
         <div className="button">

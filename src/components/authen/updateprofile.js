@@ -8,6 +8,7 @@ import "../dashboard/file.css";
 const Updateprofile = () => {
   const { user_id } = useParams();
   const navigate = useNavigate();
+  // const [user, setUser] = useState({});
   const [formDatas, setFormDatas] = useState({ 
     firstName: "",
     lastName: "",
@@ -16,20 +17,44 @@ const Updateprofile = () => {
   });
 
   useEffect(() => {
-    // Retrieve the data for the book with the given id from localStorage
-    const userData = JSON.parse(localStorage.getItem("listing"));
-    const userToEdit = userData.find(
-      (datas) => datas.user_id === parseInt(user_id)
-    );
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get("http://localhost:3300/user/getuser",{
+        headers: customHeaders,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          
+          setFormDatas(response.data.profile);
+          
+        } else {
+          toast.error("Category not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }, [user_id]);
 
-    if (userToEdit) {
-      // If the user with the given id exists, set the form data to its values
-      setFormDatas(userToEdit);
-    } else {
-      // If the book with the given id does not exist, navigate back to the homepage or handle it as needed
-      navigate("/");
-    }
-  }, [user_id, navigate]);
+  // useEffect(() => {
+   
+    
+  //   const userToEdit = userData.find(
+  //     (datas) => datas.user_id === parseInt(user_id)
+  //   );
+
+  //   if (userToEdit) {
+  //     // If the user with the given id exists, set the form data to its values
+  //     setFormDatas(userToEdit);
+  //   } else {
+  //     // If the book with the given id does not exist, navigate back to the homepage or handle it as needed
+  //     navigate("/");
+  //   }
+  // }, [user_id, navigate]);
   const handleChange = (e) => {  // onchange set the data
     const { name, value } = e.target;
     setFormDatas((prevData) => ({ ...prevData, [name]: value }));
@@ -79,7 +104,7 @@ const Updateprofile = () => {
         console.error("Error fetching products:", error);
       });
   }; 
-    //   update form
+   
   return (
     <div>
       <section className="gradient-form">
