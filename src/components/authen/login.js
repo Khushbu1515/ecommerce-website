@@ -50,7 +50,7 @@ const Login = () => {
           .catch((error) => {
             // Handle network errors or other errors
             toast.error("not logined")
-            console.error("Error:", error);
+            console.log("Error:", error);
           }))
       : (toast.error("please first signup the form"))
   };

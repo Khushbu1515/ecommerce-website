@@ -40,21 +40,7 @@ const Updateprofile = () => {
       });
   }, [user_id]);
 
-  // useEffect(() => {
-   
-    
-  //   const userToEdit = userData.find(
-  //     (datas) => datas.user_id === parseInt(user_id)
-  //   );
-
-  //   if (userToEdit) {
-  //     // If the user with the given id exists, set the form data to its values
-  //     setFormDatas(userToEdit);
-  //   } else {
-  //     // If the book with the given id does not exist, navigate back to the homepage or handle it as needed
-  //     navigate("/");
-  //   }
-  // }, [user_id, navigate]);
+  
   const handleChange = (e) => {  // onchange set the data
     const { name, value } = e.target;
     setFormDatas((prevData) => ({ ...prevData, [name]: value }));

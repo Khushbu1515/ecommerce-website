@@ -1,6 +1,8 @@
 import React from "react";
 import "./file.css";
 import axios from "axios";
+import { Container, Row, Col,Form} from 'react-bootstrap';
+
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
@@ -12,7 +14,7 @@ const Homepage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [cartlist , setCartList]= useState([])
-
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
    
 
 
@@ -52,6 +54,9 @@ const Homepage = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+  const toggleCheckout = () => {
+    setIsCheckoutOpen(!isCheckoutOpen);
+  };
   useEffect(() => {
     axios
       .get("http://localhost:3300/category/getAll")
@@ -67,6 +72,7 @@ const Homepage = () => {
         console.error("Error fetching products:", error);
       });
   }, []);
+  console.log("category",category);
   useEffect(() => {
     axios
       .get("http://localhost:3300/product/getAll")
@@ -192,8 +198,11 @@ console.log("userrrr",user)
   };
   
   const handleBuyNow = (item) => {
-  
-    navigate(`/cart/${item.product_id}`);
+    
+    // const cat_ids=category.map((items)=>items.cat_id)
+    // navigate(`/cart/${item.product_id}`);
+    navigate(`/cart/${item.product_id}/${item.c_id}`);
+
   };
   
   
@@ -270,139 +279,246 @@ console.log("userrrr",user)
 
           
       </nav>
-      {isLoggedIn ? (
-        <div className="button">
-          <button className="product" onClick={openModal}>
-            Create product
-          </button>
-          {product && product.length > 0 ? (
-            <div>
-              {product.map((item, index) => (
-                <div class="card" key={index}>
-                  <img src={spice} class="img" alt="" />
-                  <div class="card-body">
-                    {category.map((categoryItem) => {
-                      if (item.c_id === categoryItem.cat_id) {
-                        return (
-                          <h5 class="card-title" key={categoryItem.cat_id} >
-                            Category: {categoryItem.Name}
-                          </h5>
-                        );
-                      }
-                      return null; // Return null for products without a matching category
-                    })}
-                    <h5 class="card-title">
-                      Product Name: {item.product_name}
-                    </h5>
-                    <p class="card-title">Description: {item.description}</p>
-                    <p class="card-title">Price: {item.price}</p>
-                  </div>
-                  <button onClick={() => handleBuyNow(item)}>
-  Buy now
-</button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No products available.</p>
-          )}
-
+      {isLoggedIn && isLoggedIn ? (
+        <div>
+          <div className="button">
+            <button className="product" onClick={openModal}>
+              Create product
+            </button>
+          </div>
           {isModalOpen && (
-            <div className="modal">
-              <div className="modal-content">
-                <h2>Create Product</h2>
-                <form>
-                  <div className="form-group">
-                    <label htmlFor="category">Category:</label>
-                    <select
-                      id="category"
-                      className="form-control"
-                      name="category"
-                      value={modalData.category}
-                      onChange={handlechange}
-                    >
-                      <option value="">Select a category</option>
+                            <div className="modal">
+                              <div className="modal-content">
+                                <h2>Create Product</h2>
+                                <form>
+                                  <div className="form-group">
+                                    <label htmlFor="category">Category:</label>
+                                    <select
+                                      id="category"
+                                      className="form-control"
+                                      name="category"
+                                      value={modalData.category}
+                                      onChange={handlechange}
+                                    >
+                                      <option value="">Select a category</option>
+                
+                                      {category && category.length > 0 ? (
+                                        category.map((categories, index) => {
+                                          if (categories.c_id === null) {
+                                            return (
+                                              <option
+                                                id="cat"
+                                                key={index}
+                                                value={categories.c_id}
+                                              >
+                                                {categories.Name}
+                                              </option>
+                                            );
+                                          }
+                                        })
+                                      ) : (
+                                        <option value="">no categories available</option>
+                                      )}
+                                    </select>
+                                  </div>
+                                  <br />
+                
+                                  <div className="form-group">
+                                    <label htmlFor="product_name">product_name:</label>
+                                    <input
+                                      type="text"
+                                      id="product_name"
+                                      className="form-control"
+                                      name="product_name"
+                                      value={modalData.product_name}
+                                      onChange={handlechange}
+                                    />
+                                  </div>
+                                  <br />
+                                  <div className="form-group">
+                                    <label htmlFor="description">description:</label>
+                                    <input
+                                      type="text"
+                                      id="description"
+                                      className="form-control"
+                                      name="description"
+                                      value={modalData.description}
+                                      onChange={handlechange}
+                                    />
+                                  </div>
+                                  <br />
+                                  <div className="form-group">
+                                    <label htmlFor="c_id">price:</label>
+                                    <input
+                                      type="number"
+                                      id="price"
+                                      className="form-control"
+                                      name="price:"
+                                      value={modalData.price}
+                                      onChange={(e) => handlepricechange(e.target.value)}
+                                    />
+                                  </div>
+                                  <br />
+                                </form>
+                                <div className="modal-footer">
+                                  <button className="btn btn-secondary" onClick={closeModal}>
+                                    Close
+                                  </button>
+                                  <button
+                                    className="btn btn-primary"
+                                    onClick={handleSaveProduct}
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                           
+                            </div> )}
+                            </div>)
+                          : (
+                            <div className="button">
+                              <button className="product" onClick={handleclick}>
+                                Create product
+                              </button>
+                            </div>
+                          )}
+                       
+                      
+      
+      {isLoggedIn ? (
+        <>
+      <Container fluid style={{backgroundColor : "white", display: "flex", flexDirection: "column", height: "100vh"}}>
+      <Row>
+        <Col md={2}>
+        <h3>Category</h3>
+            <Form>
+            
+            {category && category.length > 0 ? (
+              category.map((categories, index) => {
+                if (categories.c_id === null) {
+                  return (
+                    <Form.Check
+                    key={categories.cat_id} // Use a unique key for each category
+                    type="radio"
+                    label={categories.Name} // Use the category name from the API
+                    value={categories.Name} // Use a unique identifier for each category
+                    onClick={toggleCheckout} // Pass the category name to the filtercategory function
+                  />
+                  );
+                }
+              })
+            ) : (
+              <option value="">no categories available</option>
+            )}
+            </Form>
+            <Form>
+              <h1>Price</h1>
+                <Form.Control
+                  as="select"
+                  
+                >
+                  <option value="HighToLow">High to Low</option>
+                  <option value="LowToHigh">Low to High</option>
+                </Form.Control>
+              
+            </Form>
+        
+        </Col>
+        <Col md={8}>
+        <div>
+        <form>
+      <h3>  {category
+        .filter((categories) => categories.Name.includes('spice'))
+        .map((filteredCategory) => (
+          <span key={filteredCategory.cat_id}>{filteredCategory.Name}</span>
+        ))}</h3>
+      {isLoggedIn ? (
+        <>
+        {product && product.length > 0 ? (
+          <div>
+            {product.map((item, index) => {
+              // Find the corresponding category for the product
+              const productCategory = category.find((categoryItem) => item.c_id === categoryItem.cat_id);
+        
+              // Check if the category name includes "Spice"
+              if (productCategory && productCategory.Name.includes("spice")) {
+                return (
+                  <div className="card" key={index}>
+                    <img src={spice} className="img" alt="" />
+                    <div className="card-body">
+                      <h5 className="card-title">Category: {productCategory.Name}</h5>
+                      <h5 className="card-title">Product Name: {item.product_name}</h5>
+                      <p className="card-title">Description: {item.description}</p>
+                      <p className="card-title">Price: {item.price}</p>
+                    </div>
+                    <button onClick={() => handleBuyNow(item)}>Buy now</button>
+                  </div>
+                );
+              }
+              return null; // Return null for products with categories other than "Spice"
+            })}
+          </div>
+        ) : (
+          <p>No products available.</p>
+        )}
+        </>
+        ) : (
+          <p>Please log in to view products.</p>
+        )}
+      </form>
+    
 
-                      {category && category.length > 0 ? (
-                        category.map((categories, index) => {
-                          if (categories.c_id === null) {
-                            return (
-                              <option
-                                id="cat"
-                                key={index}
-                                value={categories.c_id}
-                              >
-                                {categories.Name}
-                              </option>
-                            );
-                          }
-                        })
-                      ) : (
-                        <option value="">no categories available</option>
-                      )}
-                    </select>
+    <form>
+    <h3>{category
+      .filter((categories) => categories.Name.includes('groceries'))
+      .map((filteredCategory) => (
+        <span key={filteredCategory.cat_id}>{filteredCategory.Name}</span>
+      ))}</h3>
+      {isLoggedIn ? (
+        <>
+        {product && product.length > 0 ? (
+          <div>
+            {product.map((item, index) => {
+              // Find the corresponding category for the product
+              const productCategory = category.find((categoryItem) => item.c_id === categoryItem.cat_id);
+        
+              // Check if the category name includes "groceries"
+              if (productCategory && productCategory.Name.includes("groceries")) {
+                return (
+                  <div className="card" key={index}>
+                    <img src={spice} className="img" alt="" />
+                    <div className="card-body">
+                      <h5 className="card-title">Category: {productCategory.Name}</h5>
+                      <h5 className="card-title">Product Name: {item.product_name}</h5>
+                      <p className="card-title">Description: {item.description}</p>
+                      <p className="card-title">Price: {item.price}</p>
+                    </div>
+                    <button onClick={() => handleBuyNow(item)}>Buy now</button>
                   </div>
-                  <br />
+                );
+              }
+              return null; // Return null for products with categories other than "Spice"
+            })}
+          </div>
+        ) : (
+          <p>No products available.</p>
+        )}
+        </>
+        ) : (
+          <p>Please log in to view products.</p>
+        )}
+    </form>
+  </div>
+        </Col>
+      </Row>
+      
+    </Container>
+    </>
+    ) : (
+      null
+    )}
 
-                  <div className="form-group">
-                    <label htmlFor="product_name">product_name:</label>
-                    <input
-                      type="text"
-                      id="product_name"
-                      className="form-control"
-                      name="product_name"
-                      value={modalData.product_name}
-                      onChange={handlechange}
-                    />
-                  </div>
-                  <br />
-                  <div className="form-group">
-                    <label htmlFor="description">description:</label>
-                    <input
-                      type="text"
-                      id="description"
-                      className="form-control"
-                      name="description"
-                      value={modalData.description}
-                      onChange={handlechange}
-                    />
-                  </div>
-                  <br />
-                  <div className="form-group">
-                    <label htmlFor="c_id">price:</label>
-                    <input
-                      type="number"
-                      id="price"
-                      className="form-control"
-                      name="price:"
-                      value={modalData.price}
-                      onChange={(e) => handlepricechange(e.target.value)}
-                    />
-                  </div>
-                  <br />
-                </form>
-                <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={closeModal}>
-                    Close
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleSaveProduct}
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="button">
-          <button className="product" onClick={handleclick}>
-            Create product
-          </button>
-        </div>
-      )}
+   
 
       <footer>
         <div class="footer-content">
@@ -418,7 +534,9 @@ console.log("userrrr",user)
         </div>
       </footer>
     </div>
-  );
-};
+  
+  
+  )}
+    
 
 export default Homepage;

@@ -13,16 +13,17 @@ export const Cart = () => {
   const [cartslist, setCartsList] = useState([]);
   const [quantities, setQuantities] = useState({});
 
-  const { product_id } = useParams();
+  const { product_id,c_id } = useParams();
   const [categorys, setCategorys] = useState({});
   const [product, setProduct] = useState({});
-  useEffect(() => {
+
+ useEffect(() => {
     axios
-      .get(`http://localhost:3300/category/get_category?cat_id=${cat_id}`) // Replace with your actual category API endpoint
+      .get(`http://localhost:3300/category/get_category?cat_id=${c_id}`) // Replace with your actual category API endpoint
       .then((response) => {
         if (response.status === 200) {
           // Assuming your API returns an array of categories
-  console.log("category",response.data.data);
+  
           setCategorys(response.data.data);
         } else {
           // Handle other status codes if needed
@@ -72,8 +73,9 @@ export const Cart = () => {
       [productId]: Math.max((prevQuantities[productId] || 0) - 1, 0), // Ensure quantity is non-negative
     }));
   };
-
-  useEffect(() => {
+ 
+  const cartss=() => {
+   
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -86,7 +88,7 @@ export const Cart = () => {
       .then((response) => {
         if (response.status === 200) {
           // Assuming your API returns an array of categories
-
+          //console.log(response.data.data)
           setCartsList(response.data.data);
         } else {
           // Handle other status codes if needed
@@ -98,13 +100,13 @@ export const Cart = () => {
         console.error("Error:", error);
         toast.error("Failedffffffffffff to fetch carts");
       });
-  }, []);
+  }
 
   const handleclick = (item, quantities) => {
     const selectedQuantity = quantities[item.productId] || 1;
     const updatedprice = selectedQuantity * item.price;
     const cart = {
-      product_id: item.productId,
+      product_id: item.product_id,
       price: updatedprice,
       quantity: selectedQuantity || 1, // Default to 1 if quantity is not set
     };
@@ -120,8 +122,9 @@ export const Cart = () => {
       .then((response) => {
         if (response.status === 200) {
           toast.success("add the cart successfully");
-
-          setCartsList(response.data.data);
+                  cartss();
+                  console.log(response.data.data)
+         // setCartsList(response.data.data);
 
           // response.data.updatedCart.map((obj) => {
           //   localStorage.setItem(
@@ -191,7 +194,9 @@ export const Cart = () => {
               <img className="cart-item-image" src={spice} alt="" />
             </div>
             <div className="cart-item-details">
-              <p className="cart-category_name"></p>
+              <p className="cart-category_name">
+            Category Name:  {categorys.cat_id===product.c_id?categorys.Name:null}
+              </p>
               <p className="cart-product_name">
                 Product Name: {product.product_name}
               </p>

@@ -26,7 +26,7 @@ const Checkout = () => {
       }) // Replace with your actual category API endpoint
       .then((response) => {
         if (response.status === 200) {
-          console.log("carsddddd", response.data.cartListing);
+          
           SetCarts(response.data.cartListing);
         } else {
           // Handle other status codes if needed
@@ -78,13 +78,14 @@ const Checkout = () => {
       });
   };
   const handledeleteall = () => {
+   
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .delete(`http://localhost:3300/cart/deleteWholwCart`, {
+      .delete(`http://localhost:3300/cart/deleteWholeCart`, {
         headers: customHeaders,
       })
 
@@ -102,14 +103,14 @@ const Checkout = () => {
       });
   };
 
-  const handledelete = (cartids) => {
+  const handledelete = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .delete(`http://localhost:3300/cart/removeAllCart?cart_id=${cartids}`, {
+      .delete(`http://localhost:3300/cart/removeAllCart`, {
         headers: customHeaders,
       })
 
@@ -122,7 +123,7 @@ const Checkout = () => {
         }
       })
       .catch((error) => {
-        toast.error("Failed to delete");
+        
         console.error("Error:", error);
       });
   };
@@ -215,7 +216,7 @@ const Checkout = () => {
                           return (
                             <div className="svg" key={cartIndexs}>
                               <svg
-                                onClick={() => handledelete(cartes.cart_id)}
+                                onClick={handledelete}
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="25"
                                 height="25"

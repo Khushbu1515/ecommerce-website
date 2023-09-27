@@ -58,7 +58,7 @@ padding: 1px 0; /* Padding for content inside the footer */
 text-align: center; /* Center-align the content */
 bottom: 0;
 width:100%;
-position: absolute;
+position: fixed;
 }
 
 .footer-content {
@@ -127,8 +127,10 @@ text-decoration: underline; /* Add underline on hover (optional) */
     .form
     {
          flex:1;
-         margin-bottom: -470px;
-         margin-left: 200px;
+         margin-bottom: auto
+    ;
+         
+         margin-right: 400px;
             background-color: #fff;
             padding: 20px;
             border-radius: 50px;
