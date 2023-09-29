@@ -339,3 +339,12 @@ margin-left: 130px;
   font-size: 25px;
   margin-left: 1900px;
 }
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: block; /* Ensure it's displayed */
+  /* Other modal styling */
+}

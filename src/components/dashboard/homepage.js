@@ -1,7 +1,7 @@
 import React from "react";
 import "./file.css";
 import axios from "axios";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Container, Row, Col, Form,Button} from "react-bootstrap";
 
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -15,7 +15,7 @@ const Homepage = () => {
   const [cartlist, setCartList] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-
+  const [searchQuery, setSearchQuery] = useState("");
   const [alldata, setAllData] = useState([]);
   const [sortByPrice, setSortByPrice] = useState("");
   const [product, setProduct] = useState([]);
@@ -44,9 +44,7 @@ const Homepage = () => {
     setIsLoggedIn(false); // Set to false when the user logs out
     localStorage.removeItem("JWTtoken");
   };
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+  
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -66,7 +64,7 @@ const Homepage = () => {
         console.error("Error fetching products:", error);
       });
   }, []);
-  console.log("category", category);
+  
   useEffect(() => {
     axios
       .get("http://localhost:3300/product/getAll")
@@ -192,7 +190,7 @@ const Homepage = () => {
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .get("http://localhost:3301/product/getAll", {
+      .get("http://localhost:3300/product/getAll", {
         headers: customHeaders,
       })
       .then((response) => {
@@ -211,14 +209,15 @@ const Homepage = () => {
     // navigate(`/cart/${item.product_id}`);
     navigate(`/cart/${product.product_id}/${product.c_id}`);
   };
-  const filter = (catIds) => {
+  const filter = (catIds,selectedOption) => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
+    console.log("selectedoption",selectedOption)
     axios
-      .get(`http://localhost:3300/product/category_product?c_id=${catIds} && price=${}`, {
+      .get(`http://localhost:3300/product/category_product?c_id=${catIds}&price=${selectedOption}`, {
         headers: customHeaders,
       })
       .then((response) => {
@@ -226,6 +225,7 @@ const Homepage = () => {
           toast.success("filter the data");
 
           setFilteredData(response.data.data);
+   
         } else {
           toast.error("user not found");
         }
@@ -237,16 +237,45 @@ const Homepage = () => {
   const handleSortChange = (event) => {
     const selectedOption = event.target.value;
     setSortByPrice(selectedOption);
-    filter()
+    
+    filter(selectedCategory, selectedOption); // Pass both selectedCategory and selectedOption
   };
-  const handleCategoryChange = (event, catIds) => {
+  
+  const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
-
+  
     setSelectedCategory(selectedValue);
-
-    filter(catIds);
+  
+    filter(selectedValue, sortByPrice); // Pass both selectedValue and sortByPrice
   };
-
+  const handleSearch=()=>
+  {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get(`http://localhost:3300/product/getAll?Name=${searchQuery}`, {
+        headers: customHeaders,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setAllData(response.data.data);
+        } else {
+          toast.error("user not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevents the default form submission behavior
+    handleSearch(); // Calls the search function when the form is submitted
+  };
+  
+  
   return (
     <div>
       <nav className="navbar">
@@ -320,13 +349,238 @@ const Homepage = () => {
         </div>
       </nav>
       {isLoggedIn && isLoggedIn ? (
-        <div>
+        
+  <>
+        <Container
+        fluid
+        style={{
+          backgroundColor: "white",
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+        }}
+      >
+        <Row>
+        <Col xs={6}>
+        
           <div className="button">
-            <button className="product" onClick={openModal}>
+            <Button className="product" onClick={()=>setIsModalOpen(true)}>
               Create product
-            </button>
+            </Button>
           </div>
-          {isModalOpen && (
+        
+        </Col>
+          
+          <Col xs={6}>
+          <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search..."
+          />
+          <button type="submit">Search</button>
+        </form>
+          </Col>
+          <Col md={2}>
+                <h3>Category</h3>
+                <form>
+                  {category && category.length > 0 ? (
+                    category.map((categories, index) => {
+                      if (categories.c_id === null) {
+                        return (
+                          <div key={categories.cat_id}>
+                            <input
+                              type="radio"
+                              id={`category_${categories.cat_id}`}
+                              name="category" // Use the same name for all radio buttons in the group
+                              value={categories.cat_id}
+                              onChange={(event) =>
+                                handleCategoryChange(event)
+                              }
+                            />
+                            <label htmlFor={`category_${categories.cat_id}`}>
+                              {categories.Name}
+                            </label>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })
+                  ) : (
+                    <p>No categories available.</p>
+                  )}
+                </form>
+                <Form>
+                  <h1>Price</h1>
+                  <Form.Control as="select"  onChange={handleSortChange} >
+                    <option value="Select">Sorted by price</option>
+                    <option value="DESC">High to Low</option>
+                    <option value="ASC">Low to High</option>
+                  </Form.Control>
+                </Form>
+              </Col>
+              <Col md={8}>
+              <div>
+                {selectedCategory || (selectedCategory && sortByPrice) ? (
+                  filteredData.map((item, index) => {
+                    // Find the corresponding category for the product
+                    const productCategory = category.find(
+                      (categoryItem) => item.c_id === categoryItem.cat_id
+                    );
+            
+                    return (
+                      <div className="card" key={index}>
+                        <img src={spice} className="img" alt="" />
+                        <div className="card-body">
+                          <h5 className="card-title">Category: {productCategory.Name}</h5>
+                          <h5 className="card-title">Product Name: {item.product_name}</h5>
+                          <p className="card-title">Description: {item.description}</p>
+                          <p className="card-title">Price: {item.price}</p>
+                        </div>
+                        <button onClick={() => handleBuyNow(item)}>Buy now</button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  alldata.map((datas) => (
+                    <div key={datas.Name}>
+                      <h1>{datas.Name}</h1>
+                      <div>
+                        {datas.Products.map((product, index) => {
+                          // Find the corresponding category for the product
+                          const productCategory = category.find(
+                            (categoryItem) => product.c_id === categoryItem.cat_id
+                          );
+            
+                          return (
+                            <div className="card" key={index}>
+                              <img src={spice} className="img" alt="" />
+                              <div className="card-body">
+                                <h5 className="card-title">
+                                  Category: {productCategory.Name}
+                                </h5>
+                                <h5 className="card-title">
+                                  Product Name: {product.product_name}
+                                </h5>
+                                <p className="card-title">
+                                  Description: {product.description}
+                                </p>
+                                <p className="card-title">Price: {product.price}</p>
+                              </div>
+                              <button onClick={() => handleBuyNow(product)}>Buy now</button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Col>
+        </Row>
+        { isModalOpen && (
+          <div className="modal">
+            <div className="modal-content">
+              <h2>Create Product</h2>
+              <form>
+                <div className="form-group">
+                  <label htmlFor="category">Category:</label>
+                  <select
+                    id="category"
+                    className="form-control"
+                    name="category"
+                    value={modalData.category}
+                    onChange={handlechange}
+                  >
+                    <option value="">Select a category</option>
+
+                    {category && category.length > 0 ? (
+                      category.map((categories, index) => {
+                        if (categories.c_id === null) {
+                          return (
+                            <option
+                              id="cat"
+                              key={index}
+                              value={categories.c_id}
+                            >
+                              {categories.Name}
+                            </option>
+                          );
+                        }
+                      })
+                    ) : (
+                      <option value="">no categories available</option>
+                    )}
+                  </select>
+                </div>
+                <br />
+
+                <div className="form-group">
+                  <label htmlFor="product_name">product_name:</label>
+                  <input
+                    type="text"
+                    id="product_name"
+                    className="form-control"
+                    name="product_name"
+                    value={modalData.product_name}
+                    onChange={handlechange}
+                  />
+                </div>
+                <br />
+                <div className="form-group">
+                  <label htmlFor="description">description:</label>
+                  <input
+                    type="text"
+                    id="description"
+                    className="form-control"
+                    name="description"
+                    value={modalData.description}
+                    onChange={handlechange}
+                  />
+                </div>
+                <br />
+                <div className="form-group">
+                  <label htmlFor="c_id">price:</label>
+                  <input
+                    type="number"
+                    id="price"
+                    className="form-control"
+                    name="price:"
+                    value={modalData.price}
+                    onChange={(e) => handlepricechange(e.target.value)}
+                  />
+                </div>
+                <br />
+              </form>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={closeModal}>
+                  Close
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSaveProduct}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      
+      </Container>
+      </>): (
+      <div className="button">
+        <button className="product" onClick={handleclick}>
+          Create product
+        </button>
+      </div>
+    )}
+  
+
+
+          {isLoggedIn && isModalOpen && (
             <div className="modal">
               <div className="modal-content">
                 <h2>Create Product</h2>
@@ -414,128 +668,8 @@ const Homepage = () => {
               </div>
             </div>
           )}
-        </div>
-      ) : (
-        <div className="button">
-          <button className="product" onClick={handleclick}>
-            Create product
-          </button>
-        </div>
-      )}
+        
 
-      {isLoggedIn ? (
-        <>
-          <Container
-            fluid
-            style={{
-              backgroundColor: "white",
-              display: "flex",
-              flexDirection: "column",
-              height: "100vh",
-            }}
-          >
-            <Row>
-              <Col md={2}>
-                <h3>Category</h3>
-                <form>
-                  {category && category.length > 0 ? (
-                    category.map((categories, index) => {
-                      if (categories.c_id === null) {
-                        return (
-                          <div key={categories.cat_id}>
-                            <input
-                              type="radio"
-                              id={`category_${categories.cat_id}`}
-                              name="category" // Use the same name for all radio buttons in the group
-                              value={categories.cat_id}
-                              onChange={(event) =>
-                                handleCategoryChange(event, categories.cat_id)
-                              }
-                            />
-                            <label htmlFor={`category_${categories.cat_id}`}>
-                              {categories.Name}
-                            </label>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })
-                  ) : (
-                    <p>No categories available.</p>
-                  )}
-                </form>
-                <Form>
-                  <h1>Price</h1>
-                  <Form.Control as="select" onChange={handleSortChange}>
-                    <option value="Select">Sorted by price</option>
-                    <option value="HighToLow">High to Low</option>
-                    <option value="LowToHigh">Low to High</option>
-                  </Form.Control>
-                </Form>
-              </Col>
-              <Col md={8}>
-              <div>
-                {selectedCategory ? (
-                  filteredData.map((item, index) => {
-                    // Find the corresponding category for the product
-                    const productCategory = category.find(
-                      (categoryItem) => item.c_id === categoryItem.cat_id
-                    );
-            
-                    return (
-                      <div className="card" key={index}>
-                        <img src={spice} className="img" alt="" />
-                        <div className="card-body">
-                          <h5 className="card-title">Category: {productCategory.Name}</h5>
-                          <h5 className="card-title">Product Name: {item.product_name}</h5>
-                          <p className="card-title">Description: {item.description}</p>
-                          <p className="card-title">Price: {item.price}</p>
-                        </div>
-                        <button onClick={() => handleBuyNow(item)}>Buy now</button>
-                      </div>
-                    );
-                  })
-                ) : (
-                  alldata.map((datas) => (
-                    <div key={datas.Name}>
-                      <h1>{datas.Name}</h1>
-                      <div>
-                        {datas.Products.map((product, index) => {
-                          // Find the corresponding category for the product
-                          const productCategory = category.find(
-                            (categoryItem) => product.c_id === categoryItem.cat_id
-                          );
-            
-                          return (
-                            <div className="card" key={index}>
-                              <img src={spice} className="img" alt="" />
-                              <div className="card-body">
-                                <h5 className="card-title">
-                                  Category: {productCategory.Name}
-                                </h5>
-                                <h5 className="card-title">
-                                  Product Name: {product.product_name}
-                                </h5>
-                                <p className="card-title">
-                                  Description: {product.description}
-                                </p>
-                                <p className="card-title">Price: {product.price}</p>
-                              </div>
-                              <button onClick={() => handleBuyNow(product)}>Buy now</button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </Col>
-            
-            </Row>
-          </Container>
-        </>
-      ) : null}
 
       <footer>
         <div class="footer-content">
