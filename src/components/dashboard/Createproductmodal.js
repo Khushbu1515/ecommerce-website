@@ -1,14 +1,18 @@
 import React from 'react'
+// import "./file.css";
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const Createproduct = () => {
+const Createproductmodal = ({isOpen, onClose }) => {
     const navigate = useNavigate();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    // const [isModalOpen, setIsModalOpen] = useState(false);
     const [category, setCategory] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [modalData, setModalData] = useState({
     category: "",
     product_name: "",
@@ -57,10 +61,10 @@ const Createproduct = () => {
       });
   };
 
-  useEffect(() => {
-    setIsLoggedIn(true)
-    setIsModalOpen(true)
-  }, []);
+  // useEffect(() => {
+  //   setIsLoggedIn(true)
+  //   setIsModalOpen(true)
+  // }, []);
   useEffect(() => {
     axios
       .get("http://localhost:3300/category/getAll")
@@ -83,12 +87,13 @@ const Createproduct = () => {
     const cost = parseInt(price);
     setModalData((prevData) => ({ ...prevData, price: cost }));
   };
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  // const closeModal = () => {
+  //   setIsModalOpen(false);
+  // };
+  //console.log(".....open",isOpen)
   return (
-    <div>
-    {isLoggedIn && isModalOpen && (
+   
+    isOpen && (
         <div className="modal">
           <div className="modal-content">
             <h2>Create Product</h2>
@@ -163,7 +168,7 @@ const Createproduct = () => {
               <br />
             </form>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeModal}>
+              <button className="btn btn-secondary" onClick={onClose}>
                 Close
               </button>
               <button
@@ -175,9 +180,10 @@ const Createproduct = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+   
+      
   )
 }
 
-export default Createproduct
+export default Createproductmodal

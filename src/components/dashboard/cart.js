@@ -35,7 +35,7 @@ export const Cart = () => {
         console.error("Error:", error);
         toast.error("Failed to fetch categories");
       });
-  }, []);
+  }, [c_id]);
 
   useEffect(() => {
     axios
@@ -74,8 +74,8 @@ export const Cart = () => {
     }));
   };
  
-  const cartss=() => {
-   
+  useEffect(() => {
+    
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -87,23 +87,22 @@ export const Cart = () => {
       }) // Replace with your actual category API endpoint
       .then((response) => {
         if (response.status === 200) {
-          // Assuming your API returns an array of categories
-          //console.log(response.data.data)
           setCartsList(response.data.data);
+          
         } else {
           // Handle other status codes if needed
-          toast.error("Failed to fetch cart");
+          toast.error("Failed to fetch categories");
         }
       })
       .catch((error) => {
         // Handle network errors or other errors
         console.error("Error:", error);
-        toast.error("Failedffffffffffff to fetch carts");
       });
-  }
+  }, []);
+
 
   const handleclick = (item, quantities) => {
-    const selectedQuantity = quantities[item.productId] || 1;
+    const selectedQuantity = quantities[item.product_id] || 1;
     const updatedprice = selectedQuantity * item.price;
     const cart = {
       product_id: item.product_id,
@@ -122,17 +121,9 @@ export const Cart = () => {
       .then((response) => {
         if (response.status === 200) {
           toast.success("add the cart successfully");
-                  cartss();
+                 
                   console.log(response.data.data)
-         // setCartsList(response.data.data);
-
-          // response.data.updatedCart.map((obj) => {
-          //   localStorage.setItem(
-          //     "cartdata",
-          //     JSON.stringify(response.data.updatedCart)
-          //   );
-
-          // });
+         
         } else {
           // Handle other status codes if needed
           toast.error("Failed to add to cart");
@@ -140,7 +131,7 @@ export const Cart = () => {
       })
       .catch((error) => {
         // Handle network errors or other errors
-        toast.error("Faileddddd to add to cart");
+        toast.error("please login the form");
         console.error("Error:", error);
       });
   };
@@ -148,7 +139,7 @@ export const Cart = () => {
   return (
     <div>
       <div>
-        <nav className="navbar">
+        <nav className="navbars">
           <div>
             <img className="logo" src={ecomm} alt=""></img>
           </div>

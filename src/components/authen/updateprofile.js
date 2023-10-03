@@ -59,6 +59,7 @@ const Updateprofile = () => {
       .then((response) => {
         if (response.status === 200) {
           toast.success("update the data successfully");
+          navigate("/")
         } else {
           toast.error(" not updated");
         }
@@ -82,6 +83,9 @@ const Updateprofile = () => {
       .then((response) => {
         if (response.status === 200) {
           toast.success("delete the user successfully");
+          localStorage.removeItem("JWTtoken");
+          navigate("/")
+         
         } else {
           toast.error(" not deleted");
         }

@@ -9,14 +9,14 @@ import Placedorder from "./components/dashboard/placedorder";
 import Updateprofile from "./components/authen/updateprofile";
 
 import Homepage from "./components/dashboard/homepage";
-import Createproduct from "./components/dashboard/Createproduct";
+import Createproductmodal from "./components/dashboard/Createproductmodal";
 
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Homepage />}></Route>
-      <Route path="/create" element={<Createproduct />}></Route>
+      <Route path="/create" element={<Createproductmodal />}></Route>
       <Route path="/signup" element={<Signup />}></Route>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/placedorder" element={<Placedorder />}></Route>
