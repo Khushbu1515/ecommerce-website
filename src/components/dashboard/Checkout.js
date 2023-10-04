@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import ecomm from "../assets/ecomm.png";
 import spice from "../assets/spice.jpeg";
-import { useParams, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import "./file.css";
 
 const Checkout = () => {
@@ -12,7 +12,7 @@ const Checkout = () => {
 
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
-  const { product_id } = useParams();
+  // const { product_id } = useParams();
   const totalCost = carts.reduce((total, cart) => total + cart.price, 0);
   useEffect(() => {
     const jwtToken = localStorage.getItem("JWTtoken");
@@ -38,7 +38,7 @@ const Checkout = () => {
         console.error("Error:", error);
         toast.error("Failed to fetch categories");
       });
-  }, [product_id]);
+  }, []);
 
   useEffect(() => {
     axios
@@ -59,8 +59,13 @@ const Checkout = () => {
       });
   }, []);
   const handlecheckout = () => {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
     axios
-      .post("http://localhost:3300/user/checkOut") // Send the 'cart' object as JSON data
+      .post("http://localhost:3300/user/checkOut",{headers:customHeaders,}) // Send the 'cart' object as JSON data
       .then((response) => {
         if (response.status === 200) {
           toast.success("placed the order successfully");

@@ -57,7 +57,7 @@ const Login = () => {
 
   return (
     <div>
-      <nav className="navbar">
+      <nav className="navbars">
         <div>
           <img className="logo" src={ecomm} alt=""></img>
         </div>

@@ -157,7 +157,7 @@ export const Cart = () => {
           {Object.keys(product).length > 0 ? (
             <div>
               <svg
-                onClick={() => navigate(`/checkout/${product.product_id}`)}
+                onClick={() => navigate(`/checkout`)}
                 xmlns="http://www.w3.org/2000/svg"
                 width="25"
                 height="50"

@@ -364,3 +364,43 @@ margin-left: 130px;
   right: 10px;
   cursor: pointer;
 }
+.validation
+{
+  align-items: "center";
+  justify-content: "center";
+  color: #d8363a;
+}
+.found{
+  display: "flex";
+  align-items: "center";
+  justify-content: "center";
+  margin-left: 800px;
+ 
+}
+.navbarss {
+  position: relative;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: green;
+  border: 5px solid green; /* Border style, width, and color */
+
+  
+  padding: 10px 20px;
+  /* Other styles */
+}
+.navbarss h1 {
+  color: white;
+  margin-left: 900px;
+}
+.check
+{
+  color: green;
+  margin-left: 900px;
+}
+.placed{
+  color: black;
+  margin-left: 900px;
+}

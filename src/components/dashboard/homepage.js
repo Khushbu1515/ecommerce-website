@@ -1,9 +1,9 @@
 import React from "react";
 import "./file.css";
 import axios from "axios";
-import { Container, Row, Col, Form, Button, Modal } from "react-bootstrap";
-import Createproductmodal from "./Createproductmodal";
-import { json, useNavigate } from "react-router-dom";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+
+import {  useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import ecomm from "../assets/ecomm.png";
@@ -27,7 +27,12 @@ const Homepage = () => {
     price: "",
   });
   // State to track whether to show quantity controls
-
+  const [errors, setErrors] = useState({
+    category: "",
+    product_name: "",
+    description: "",
+    price: "",
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Initialize with false for not logged in
 
@@ -48,7 +53,7 @@ const Homepage = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-
+  
   useEffect(() => {
     axios
       .get("http://localhost:3300/category/getAll")
@@ -129,7 +134,30 @@ const Homepage = () => {
       });
   }, []);
  
-  const handleSaveProduct = () => {
+  const handleSaveProduct = (event) => {
+    event.preventDefault();
+
+    if (
+      
+      !modalData.product_name ||
+      !modalData.description||
+      !modalData.price 
+     
+    ) {
+      // Set error messages for empty fields
+      setErrors({
+        category:!modalData.category ? "this is required field"  : "",
+        product_name:!modalData.product_name ? "this is required field"  : "",
+        description: !modalData.description ? "this is required field"  : "",
+        price: !modalData.price ? "this is required field"  : "",
+
+      });
+      return; // Prevent form submission
+    }
+    // Validate required fields
+    else {
+      toast.success("submit the data succesfully");
+    }
     const filteredCategories = category.find(
       (categories) => categories.Name === modalData.category
     );
@@ -173,15 +201,15 @@ const Homepage = () => {
 
   const handlechange = (e) => {
     const { name, value } = e.target;
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handlepricechange = (price) => {
     const cost = parseInt(price);
+    setErrors((prevErrors) => ({ ...prevErrors, price: "" }));
     setModalData((prevData) => ({ ...prevData, price: cost }));
   };
-  const handleclick = () => {
-    toast.error("please first login");
-  };
+  
   useEffect(() => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -204,8 +232,7 @@ const Homepage = () => {
       });
   }, []);
   const handleBuyNow = (product) => {
-    // const cat_ids=category.map((items)=>items.cat_id)
-    // navigate(`/cart/${item.product_id}`);
+    
     navigate(`/cart/${product.product_id}/${product.c_id}`);
   };
   const filter = (catIds, selectedOption) => {
@@ -214,7 +241,7 @@ const Homepage = () => {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
-    console.log("selectedoption", selectedOption);
+    
     axios
       .get(
         `http://localhost:3300/product/category_product?c_id=${catIds}&price=${selectedOption}`,
@@ -226,6 +253,7 @@ const Homepage = () => {
         if (response.status === 200) {
           toast.success("filter the data");
 
+          
           setFilteredData(response.data.data);
         } else {
           toast.error("user not found");
@@ -255,6 +283,31 @@ const Homepage = () => {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
+    if (selectedCategory||(selectedCategory&&sortByPrice)) {
+      
+      axios
+      .get(
+        `http://localhost:3300/product/category_product?c_id=${selectedCategory}&price=${sortByPrice}&Name=${searchQuery}`,
+        {
+          headers: customHeaders,
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success("filterss the data");
+
+          
+          setFilteredData(response.data.data);
+        } else {
+          toast.error("user not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+    }
+    else
+    {
     axios
       .get(`http://localhost:3300/product/getAll?Name=${searchQuery}`, {
         headers: customHeaders,
@@ -262,6 +315,7 @@ const Homepage = () => {
       .then((response) => {
         if (response.status === 200) {
           setAllData(response.data.data);
+         
         } else {
           toast.error("user not found");
         }
@@ -270,10 +324,12 @@ const Homepage = () => {
         console.error("Error fetching products:", error);
       });
   };
+}
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
     handleSearch(); // Calls the search function when the form is submitted
   };
+  
    
   return (
     <div>
@@ -299,7 +355,7 @@ const Homepage = () => {
                 <div>
                   <svg
                     onClick={() =>
-                      navigate(`/checkout/${product[0].product_id}`)
+                      navigate(`/checkout`)
                     }
                     xmlns="http://www.w3.org/2000/svg"
                     width="25"
@@ -387,7 +443,7 @@ const Homepage = () => {
                     type="text"
                     name="search"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(event)=>setSearchQuery(event.target.value)}
                     placeholder="Search..."
                   />
                   <button type="submit">Search</button>
@@ -431,7 +487,7 @@ const Homepage = () => {
               </Col>
               <Col md={8}>
                 <div>
-                  {selectedCategory || (selectedCategory && sortByPrice)
+                  {selectedCategory||(selectedCategory && searchQuery) || (selectedCategory && sortByPrice)
                     ? filteredData.map((item, index) => {
                         // Find the corresponding category for the product
                         const productCategory = category.find(
@@ -536,6 +592,7 @@ const Homepage = () => {
                   <option value="">no categories available</option>
                 )}
               </select>
+              <div className="validation">{errors.category}</div>
             </div>
             <br />
 
@@ -549,6 +606,7 @@ const Homepage = () => {
                 value={modalData.product_name}
                 onChange={handlechange}
               />
+              <div className="validation">{errors.product_name}</div>
             </div>
             <br />
             <div className="form-group">
@@ -561,6 +619,7 @@ const Homepage = () => {
                 value={modalData.description}
                 onChange={handlechange}
               />
+              <div className="validation">{errors.description}</div>
             </div>
             <br />
             <div className="form-group">
@@ -573,6 +632,8 @@ const Homepage = () => {
                 value={modalData.price}
                 onChange={(e) => handlepricechange(e.target.value)}
               />
+              <div className="validation">{errors.price}</div>
+
             </div>
             <br />
           </form>
