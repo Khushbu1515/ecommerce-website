@@ -9,12 +9,17 @@ import "./file.css";
 
 const Checkout = () => {
   const [carts, SetCarts] = useState([]);
-
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
-  // const { product_id } = useParams();
+  const [user, setUser] = useState({});
+ 
   const totalCost = carts.reduce((total, cart) => total + cart.price, 0);
-  useEffect(() => {
+ useEffect(()=>
+  {
+     getListCarts();  // access all the carts data
+  },[])
+  const getListCarts=()=> {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -38,7 +43,7 @@ const Checkout = () => {
         console.error("Error:", error);
         toast.error("Failed to fetch categories");
       });
-  }, []);
+  }
 
   useEffect(() => {
     axios
@@ -61,11 +66,11 @@ const Checkout = () => {
   const handlecheckout = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
-      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      Authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .post("http://localhost:3300/user/checkOut",{headers:customHeaders,}) // Send the 'cart' object as JSON data
+      .get("http://localhost:3300/user/checkOut",{headers:customHeaders}) // Send the 'cart' object as JSON data
       .then((response) => {
         if (response.status === 200) {
           toast.success("placed the order successfully");
@@ -78,7 +83,7 @@ const Checkout = () => {
       })
       .catch((error) => {
         // Handle network errors or other errors
-        toast.error("Faileddddd to add to cart");
+        toast.error("Faileddddd to placed order");
         console.error("Error:", error);
       });
   };
@@ -107,15 +112,16 @@ const Checkout = () => {
         console.error("Error:", error);
       });
   };
-
-  const handledelete = () => {
+ 
+  const handledelete = (ids) => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
+    console.log(ids,"idddd")
     axios
-      .delete(`http://localhost:3300/cart/removeAllCart`, {
+      .delete(`http://localhost:3300/cart/removeCart?product_id=${ids}`, {
         headers: customHeaders,
       })
 
@@ -123,6 +129,7 @@ const Checkout = () => {
         if (cartResponse.status === 200) {
           // Both product and cart deletion were successful
           toast.success("Delete the order successfully");
+          getListCarts();
         } else {
           toast.error("Failed to delete cart");
         }
@@ -132,7 +139,39 @@ const Checkout = () => {
         console.error("Error:", error);
       });
   };
+  
+  useEffect(() => {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get("http://localhost:3300/user/getuser", {
+        headers: customHeaders,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setUser(response.data.profile);
+          
+        } else {
+          toast.error("user not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }, []);
+  const handleLogin = () => {
+    // Perform login logic here
+    navigate("/login");
+  };
+  const handleLogout = () => {
+    // Perform logout logic here
 
+    setIsLoggedIn(false); // Set to false when the user logs out
+    localStorage.removeItem("JWTtoken");
+  };
   return (
     <div>
       <div>
@@ -164,7 +203,46 @@ const Checkout = () => {
             </svg>
             {carts.length > 0 ? <span>[{carts.length}]</span> :  <span>[{carts.length}]</span>}
           </div>
-          
+          <div>
+          {isLoggedIn && Object.keys(user).length > 0 ? (
+            <div>
+              {user ? (
+                // If a user exists, render the profile icon and logout button
+                <div>
+                  <input
+                    onClick={() => navigate(`/update/${user.user_id}`)}
+                    className="profileImage"
+                    type="text"
+                    value={`${user.firstName
+                      .charAt(0)
+                      .toUpperCase()} ${user.lastName
+                      .charAt(0)
+                      .toUpperCase()}`}
+                  />
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              ) : (
+                // If no user exists, render login and signup buttons
+                <div>
+                  <button className="user-actions" onClick={() => navigate("/login")}>Login</button>
+                  <button className="user-actions" onClick={() => navigate("/signup")}>Signup</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <button
+                className="user-actions"
+                onClick={() => navigate("/signup")}
+              >
+                Signup
+              </button>
+              <button className="user-actions" onClick={handleLogin}>
+                Login
+              </button>
+            </div>
+          )}
+        </div>
         </nav>
       </div>
 
@@ -202,7 +280,7 @@ const Checkout = () => {
                     <div>
                       {carts.map((cart, cartIndex) => {
                         if (cartIndex === index) {
-                          console.log("caaaart", cart.cart_id);
+                          
                           return (
                             <div key={cartIndex}>
                               <p className="cart-quantity_names">
@@ -222,7 +300,7 @@ const Checkout = () => {
                           return (
                             <div className="svg" key={cartIndexs}>
                               <svg
-                                onClick={handledelete}
+                                onClick={()=>handledelete(cartes.product_id)}
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="25"
                                 height="25"
@@ -251,6 +329,7 @@ const Checkout = () => {
       <div className="placed">
         <span>TOTAL COST:{totalCost}</span>
         <button onClick={handlecheckout}>Place order</button>
+       
       </div>
     </div>
   );

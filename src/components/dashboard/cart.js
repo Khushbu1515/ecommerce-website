@@ -9,10 +9,10 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export const Cart = () => {
   const navigate = useNavigate();
-
+  const [user, setUser] = useState({});
   const [cartslist, setCartsList] = useState([]);
   const [quantities, setQuantities] = useState({});
-
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const { product_id,c_id } = useParams();
   const [categorys, setCategorys] = useState({});
   const [product, setProduct] = useState({});
@@ -42,7 +42,7 @@ export const Cart = () => {
       .get(`http://localhost:3300/product/get_product?id=${product_id}`)
       .then((response) => {
         if (response.status === 200) {
-          toast.success("access product successfully");
+          
 
           setProduct(response.data.product);
         } else {
@@ -57,7 +57,7 @@ export const Cart = () => {
       });
   }, [product_id]);
 
-  console.log("product...", product);
+  
   // Function to increase the quantity for a specific product
   const increaseQuantity = (productId) => {
     setQuantities((prevQuantities) => ({
@@ -73,8 +73,11 @@ export const Cart = () => {
       [productId]: Math.max((prevQuantities[productId] || 0) - 1, 0), // Ensure quantity is non-negative
     }));
   };
- 
-  useEffect(() => {
+  useEffect(()=>
+  {
+     CartsUpdate();  // update all the carts data
+  },[])
+       const CartsUpdate=() => {
     
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -98,9 +101,29 @@ export const Cart = () => {
         // Handle network errors or other errors
         console.error("Error:", error);
       });
+  }
+  useEffect(() => {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get("http://localhost:3300/user/getuser", {
+        headers: customHeaders,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setUser(response.data.profile);
+          
+        } else {
+          toast.error("user not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
   }, []);
-
-
   const handleclick = (item, quantities) => {
     const selectedQuantity = quantities[item.product_id] || 1;
     const updatedprice = selectedQuantity * item.price;
@@ -121,9 +144,8 @@ export const Cart = () => {
       .then((response) => {
         if (response.status === 200) {
           toast.success("add the cart successfully");
-                 
-                  console.log(response.data.data)
-         
+          CartsUpdate(); 
+                  
         } else {
           // Handle other status codes if needed
           toast.error("Failed to add to cart");
@@ -135,7 +157,16 @@ export const Cart = () => {
         console.error("Error:", error);
       });
   };
+  const handleLogin = () => {
+    // Perform login logic here
+    navigate("/login");
+  };
+  const handleLogout = () => {
+    // Perform logout logic here
 
+    setIsLoggedIn(false); // Set to false when the user logs out
+    localStorage.removeItem("JWTtoken");
+  };
   return (
     <div>
       <div>
@@ -174,7 +205,48 @@ export const Cart = () => {
               )}
             </div>
           ) : null /* Render nothing if Object.keys(product).length is not greater than 0 */}
+         
           
+          <div>
+          {isLoggedIn && Object.keys(user).length > 0 ? (
+            <div>
+              {user ? (
+                // If a user exists, render the profile icon and logout button
+                <div>
+                  <input
+                    onClick={() => navigate(`/update/${user.user_id}`)}
+                    className="profileImage"
+                    type="text"
+                    value={`${user.firstName
+                      .charAt(0)
+                      .toUpperCase()} ${user.lastName
+                      .charAt(0)
+                      .toUpperCase()}`}
+                  />
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              ) : (
+                // If no user exists, render login and signup buttons
+                <div>
+                  <button className="user-actions" onClick={() => navigate("/login")}>Login</button>
+                  <button className="user-actions" onClick={() => navigate("/signup")}>Signup</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <button
+                className="user-actions"
+                onClick={() => navigate("/signup")}
+              >
+                Signup
+              </button>
+              <button className="user-actions" onClick={handleLogin}>
+                Login
+              </button>
+            </div>
+          )}
+        </div>
         </nav>
       </div>
 
