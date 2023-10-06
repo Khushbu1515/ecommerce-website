@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import ecomm from "../assets/ecomm.png";
 import spice from "../assets/spice.jpeg";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./file.css";
 
 const Checkout = () => {
@@ -13,13 +13,12 @@ const Checkout = () => {
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const [user, setUser] = useState({});
- 
+
   const totalCost = carts.reduce((total, cart) => total + cart.price, 0);
- useEffect(()=>
-  {
-     getListCarts();  // access all the carts data
-  },[])
-  const getListCarts=()=> {
+  useEffect(() => {
+    getListCarts(); // access all the carts data
+  }, []);
+  const getListCarts = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -31,7 +30,6 @@ const Checkout = () => {
       }) // Replace with your actual category API endpoint
       .then((response) => {
         if (response.status === 200) {
-          
           SetCarts(response.data.cartListing);
         } else {
           // Handle other status codes if needed
@@ -43,7 +41,7 @@ const Checkout = () => {
         console.error("Error:", error);
         toast.error("Failed to fetch categories");
       });
-  }
+  };
 
   useEffect(() => {
     axios
@@ -70,7 +68,7 @@ const Checkout = () => {
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .get("http://localhost:3300/user/checkOut",{headers:customHeaders}) // Send the 'cart' object as JSON data
+      .get("http://localhost:3300/user/checkOut", { headers: customHeaders }) // Send the 'cart' object as JSON data
       .then((response) => {
         if (response.status === 200) {
           toast.success("placed the order successfully");
@@ -88,7 +86,6 @@ const Checkout = () => {
       });
   };
   const handledeleteall = () => {
-   
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -99,7 +96,7 @@ const Checkout = () => {
         headers: customHeaders,
       })
 
-      .then((cartResponse) => {  
+      .then((cartResponse) => {
         if (cartResponse.status === 200) {
           // Both product and cart deletion were successful
           toast.success("Delete  all the order successfully");
@@ -112,14 +109,14 @@ const Checkout = () => {
         console.error("Error:", error);
       });
   };
- 
+
   const handledelete = (ids) => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
-    console.log(ids,"idddd")
+    console.log(ids, "idddd");
     axios
       .delete(`http://localhost:3300/cart/removeCart?product_id=${ids}`, {
         headers: customHeaders,
@@ -135,11 +132,10 @@ const Checkout = () => {
         }
       })
       .catch((error) => {
-        
         console.error("Error:", error);
       });
   };
-  
+
   useEffect(() => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -153,7 +149,6 @@ const Checkout = () => {
       .then((response) => {
         if (response.status === 200) {
           setUser(response.data.profile);
-          
         } else {
           toast.error("user not found");
         }
@@ -201,56 +196,78 @@ const Checkout = () => {
             >
               <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
             </svg>
-            {carts.length > 0 ? <span>[{carts.length}]</span> :  <span>[{carts.length}]</span>}
+            {carts.length > 0 ? (
+              <span>[{carts.length}]</span>
+            ) : (
+              <span>[{carts.length}]</span>
+            )}
           </div>
           <div>
-          {isLoggedIn && Object.keys(user).length > 0 ? (
-            <div>
-              {user ? (
-                // If a user exists, render the profile icon and logout button
-                <div>
-                  <input
-                    onClick={() => navigate(`/update/${user.user_id}`)}
-                    className="profileImage"
-                    type="text"
-                    value={`${user.firstName
-                      .charAt(0)
-                      .toUpperCase()} ${user.lastName
-                      .charAt(0)
-                      .toUpperCase()}`}
-                  />
-                  <button onClick={handleLogout}>Logout</button>
-                </div>
-              ) : (
-                // If no user exists, render login and signup buttons
-                <div>
-                  <button className="user-actions" onClick={() => navigate("/login")}>Login</button>
-                  <button className="user-actions" onClick={() => navigate("/signup")}>Signup</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div>
-              <button
-                className="user-actions"
-                onClick={() => navigate("/signup")}
-              >
-                Signup
-              </button>
-              <button className="user-actions" onClick={handleLogin}>
-                Login
-              </button>
-            </div>
-          )}
-        </div>
+            {isLoggedIn && Object.keys(user).length > 0 ? (
+              <div>
+                {user ? (
+                  // If a user exists, render the profile icon and logout button
+                  <div class="profile-container">
+                    <input
+                     
+                      className="profileImage"
+                      type="text"
+                      value={`${user.firstName
+                        .charAt(0)
+                        .toUpperCase()} ${user.lastName
+                        .charAt(0)
+                        .toUpperCase()}`}
+                    />
+                    <div class="profile-dialog">
+                      <ul>
+                        <li  onClick={() => navigate(`/update/${user.user_id}`)}> Profile Update</li>
+                        <li onClick={() => navigate("/placedorder")}>Orders Details</li>
+                        <li onClick={handleLogout}> Logout</li>
+                        
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  // If no user exists, render login and signup buttons
+                  <div>
+                    <button
+                      className="user-actions"
+                      onClick={() => navigate("/login")}
+                    >
+                      Login
+                    </button>
+                    <button
+                      className="user-actions"
+                      onClick={() => navigate("/signup")}
+                    >
+                      Signup
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div>
+                <button
+                  className="user-actions"
+                  onClick={() => navigate("/signup")}
+                >
+                  Signup
+                </button>
+                <button className="user-actions" onClick={handleLogin}>
+                  Login
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
       </div>
 
       <div className="cart-items">
-
-      <div>
-      <button className="allitem" onClick={handledeleteall}>Clear items</button>
-      </div>
+        <div>
+          <button className="allitem" onClick={handledeleteall}>
+            Clear items
+          </button>
+        </div>
         {carts && carts.length > 0 ? (
           <div>
             {carts.map((cartss, index) => (
@@ -280,7 +297,6 @@ const Checkout = () => {
                     <div>
                       {carts.map((cart, cartIndex) => {
                         if (cartIndex === index) {
-                          
                           return (
                             <div key={cartIndex}>
                               <p className="cart-quantity_names">
@@ -300,7 +316,7 @@ const Checkout = () => {
                           return (
                             <div className="svg" key={cartIndexs}>
                               <svg
-                                onClick={()=>handledelete(cartes.product_id)}
+                                onClick={() => handledelete(cartes.product_id)}
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="25"
                                 height="25"
@@ -327,9 +343,14 @@ const Checkout = () => {
         )}
       </div>
       <div className="placed">
-        <span>TOTAL COST:{totalCost}</span>
-        <button onClick={handlecheckout}>Place order</button>
-       
+        {carts.length > 0 ? (
+          <div>
+            <span>TOTAL COST: {totalCost}</span>
+            <button onClick={handlecheckout}>Place order</button>
+          </div>
+        ) : (
+          <p>Your cart is empty.</p>
+        )}
       </div>
     </div>
   );

@@ -374,14 +374,14 @@ const Homepage = () => {
                 </div>
               )}
           </div>
-          <div>
+          
             {isLoggedIn && Object.keys(user).length > 0 ? (
               <div>
                 {user ? (
                   // If a user exists, render the profile icon and logout button
-                  <div>
+                  <div class="profile-container">
                     <input
-                      onClick={() => navigate(`/update/${user.user_id}`)}
+                     
                       className="profileImage"
                       type="text"
                       value={`${user.firstName
@@ -390,13 +390,30 @@ const Homepage = () => {
                         .charAt(0)
                         .toUpperCase()}`}
                     />
-                    <button onClick={handleLogout}>Logout</button>
+                    <div class="profile-dialog">
+                      <ul>
+                        <li  onClick={() => navigate(`/update/${user.user_id}`)}> Profile Update</li>
+                        <li onClick={() => navigate("/placedorder")}>Orders Details</li>
+                        <li onClick={handleLogout}> Logout</li>
+                        
+                      </ul>
+                    </div>
                   </div>
                 ) : (
                   // If no user exists, render login and signup buttons
                   <div>
-                    <button className="user-actions" onClick={() => navigate("/login")}>Login</button>
-                    <button className="user-actions" onClick={() => navigate("/signup")}>Signup</button>
+                    <button
+                      className="user-actions"
+                      onClick={() => navigate("/login")}
+                    >
+                      Login
+                    </button>
+                    <button
+                      className="user-actions"
+                      onClick={() => navigate("/signup")}
+                    >
+                      Signup
+                    </button>
                   </div>
                 )}
               </div>
@@ -413,7 +430,7 @@ const Homepage = () => {
                 </button>
               </div>
             )}
-          </div>
+          
         </nav>
        
           <Container

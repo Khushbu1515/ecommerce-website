@@ -192,7 +192,7 @@ text-decoration: underline; /* Add underline on hover (optional) */
         background: #512DA8;
         font-size: 25px;
         color: #fff;
-       
+        cursor:pointer;
         line-height: 150px;
         margin: 20px 0;
       }
@@ -407,4 +407,39 @@ margin-left: 130px;
 .placedd{
   color: black;
   margin-left: 800px;
+}
+.profile-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-icon {
+  cursor: pointer;
+}
+
+.profile-dialog {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.profile-dialog ul {
+  list-style: none;
+  padding: 0;
+}
+
+.profile-dialog li {
+  margin: 15px 0;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+/* Show the dialog box on hover */
+.profile-container:hover .profile-dialog {
+  display: block;
 }
