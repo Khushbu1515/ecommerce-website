@@ -35,7 +35,30 @@ async function addOrderDetails({ user_id, cartData }) {
     })
   );
   const orderDetails = await db.OrderDetails.findAll();
-  return orderDetails;
+  const cart = [];
+await Promise.all(
+  cartData.map(async (obj) => {
+    try {
+      const data = await db.Product.findOne({
+        where: {
+          product_id: obj.product_id,
+        },
+        raw: true,
+      });
+      if (data) {
+        console.log("Cart details", data);
+        cart.push(data.toJSON());
+      } else {
+        console.log(`No product found for product_id: ${obj.product_id}`);
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+    }
+  })
+);
+
+  console.log(orderDetails, cart);
+  return {orderDetails, cart};
 }
 
 module.exports = {

@@ -11,13 +11,14 @@ async function getOrderDetails(req,res){
 async function addOrderDetails(req,res){
     const userData= req.userdata;
     const cartData= req.cartdata;
-    const OrderDetails = await orderDetailsServices.addOrderDetails({
+    const {OrderDetails,cart} = await orderDetailsServices.addOrderDetails({
         user_id:userData.user_id,
         cartData:cartData
     });
     res.json({
         message:"Your order have placed",
-        data: OrderDetails
+        data: OrderDetails,
+        recentOrdered : cart
     }) ;
 }
 
