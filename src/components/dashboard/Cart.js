@@ -16,7 +16,7 @@ export const Cart = () => {
   const { product_id,c_id } = useParams();
   const [categorys, setCategorys] = useState({});
   const [product, setProduct] = useState({});
-
+  const [inputValue, setInputValue] = useState('');
  useEffect(() => {
     axios
       .get(`http://localhost:3300/category/get_category?cat_id=${c_id}`) // Replace with your actual category API endpoint
@@ -212,7 +212,7 @@ export const Cart = () => {
             <div>
               {user ? (
                 // If a user exists, render the profile icon and logout button
-                <div class="profile-container">
+                <div className="profile-container">
                   <input
                    
                     className="profileImage"
@@ -222,11 +222,13 @@ export const Cart = () => {
                       .toUpperCase()} ${user.lastName
                       .charAt(0)
                       .toUpperCase()}`}
+                   onChange={(e)=> setInputValue(e.target.value)}
                   />
-                  <div class="profile-dialog">
+                  <p>{inputValue}</p>
+                  <div className="profile-dialog">
                     <ul>
                       <li  onClick={() => navigate(`/update/${user.user_id}`)}> Profile Update</li>
-                      <li onClick={() => navigate("/placedorder")}>Orders Details</li>
+                      <li onClick={() => navigate("/orderhistory")}>Orders Details</li>
                       <li onClick={handleLogout}> Logout</li>
                       
                     </ul>

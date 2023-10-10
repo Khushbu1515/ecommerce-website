@@ -73,26 +73,26 @@ const SignUp = () => {
           </button>
         </div>
       </nav>
-      <section class="gradient-form">
-        <div class="container py-5 h-100">
-          <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-xl-10">
-              <div class="card rounded-3 text-black">
-                <div class="row g-0">
-                  <div class="col-lg-6">
-                    <div class="container">
+      <section className="gradient-form">
+        <div className="container py-5 h-100">
+          <div className="row d-flex justify-content-center align-items-center h-100">
+            <div className="col-xl-10">
+              <div className="card rounded-3 text-black">
+                <div className="row g-0">
+                  <div className="col-lg-6">
+                    <div className="container">
                       <form className="form">
                         <p className="head">Sign UP</p>
 
                         <br />
 
                         <div className="fields">
-                          <label class="form-label" for="form2Example11">
+                          <label className="form-label" for="form2Example11">
                             firstName:
                           </label>
                           <input
                             type="text"
-                            class="form-control"
+                            className="form-control"
                             placeholder="firstname"
                             name="firstName"
                             value={formData.firstName}
@@ -101,12 +101,12 @@ const SignUp = () => {
                           <div />
                           <br />
                           <div className="fields">
-                            <label class="form-label" for="form2Example11">
+                            <label className="form-label" for="form2Example11">
                               lastName:
                             </label>
                             <input
                               type="text"
-                              class="form-control"
+                              className="form-control"
                               placeholder="lastname"
                               name="lastName"
                               value={formData.lastName}
@@ -116,12 +116,12 @@ const SignUp = () => {
                             <br />
 
                             <div className="fields">
-                              <label class="form-label" for="form2Example11">
+                              <label className="form-label" for="form2Example11">
                                 EmailAddress:
                               </label>
                               <input
                                 type="text"
-                                class="form-control"
+                                className="form-control"
                                 placeholder="email"
                                 name="EmailAddress"
                                 value={formData.EmailAddress}
@@ -130,12 +130,12 @@ const SignUp = () => {
                             </div>
 
                             <div className="fields">
-                              <label class="form-label" for="form2Example11">
+                              <label className="form-label" for="form2Example11">
                                 password:
                               </label>
                               <input
                                 type="text"
-                                class="form-control"
+                                className="form-control"
                                 name="password"
                                 placeholder="password"
                                 value={formData.password}
@@ -144,9 +144,9 @@ const SignUp = () => {
                             </div>
 
                             <br />
-                            <div class="d-flex align-items-center justify-content-center pb-4">
+                            <div className="d-flex align-items-center justify-content-center pb-4">
                               <button
-                                class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"
+                              className="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"
                                 type="button"
                                 onClick={handleSubmit}
                               >
@@ -165,7 +165,7 @@ const SignUp = () => {
         </div>
       </section>
       <footer>
-        <div class="footer-content">
+        <div className="footer-content">
           <p>@copy; 2023 MATRIX MEDIA SOLUTION PVT. LTD.</p>
           <ul>
             <li>

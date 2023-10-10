@@ -20,6 +20,7 @@ const Homepage = () => {
   const [sortByPrice, setSortByPrice] = useState("");
   const [product, setProduct] = useState([]);
   const [category, setCategory] = useState([]);
+  const [inputValue, setInputValue] = useState('');
   const [modalData, setModalData] = useState({
     category: "",
     product_name: "",
@@ -85,8 +86,7 @@ const Homepage = () => {
       });
   }, []);
   useEffect(() => {
-    // const cartsDatas = JSON.parse(localStorage.getItem("cartsdata"));
-    // setCartList(cartsDatas)
+   
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -379,7 +379,7 @@ const Homepage = () => {
               <div>
                 {user ? (
                   // If a user exists, render the profile icon and logout button
-                  <div class="profile-container">
+                  <div className="profile-container">
                     <input
                      
                       className="profileImage"
@@ -389,11 +389,13 @@ const Homepage = () => {
                         .toUpperCase()} ${user.lastName
                         .charAt(0)
                         .toUpperCase()}`}
-                    />
-                    <div class="profile-dialog">
+                        onChange={(e)=> setInputValue(e.target.value)}
+                        />
+                        <p>{inputValue}</p>
+                    <div className="profile-dialog">
                       <ul>
                         <li  onClick={() => navigate(`/update/${user.user_id}`)}> Profile Update</li>
-                        <li onClick={() => navigate("/placedorder")}>Orders Details</li>
+                        <li onClick={() => navigate("/orderhistory")}>Orders Details</li>
                         <li onClick={handleLogout}> Logout</li>
                         
                       </ul>
@@ -495,7 +497,7 @@ const Homepage = () => {
                 </form>
                 <Form>
                   <h1>Price</h1>
-                  <Form.Control as="select" onChange={handleSortChange}>
+                  <Form.Control as="select"  onChange={handleSortChange}>
                     <option value="Select">Sorted by price</option>
                     <option value="DESC">High to Low</option>
                     <option value="ASC">Low to High</option>
@@ -606,7 +608,7 @@ const Homepage = () => {
                     }
                   })
                 ) : (
-                  <option value="">no categories available</option>
+                  <option>no categories available</option>
                 )}
               </select>
               <div className="validation">{errors.category}</div>
@@ -671,7 +673,7 @@ const Homepage = () => {
         
 
         <footer>
-          <div class="footer-content">
+          <div className="footer-content">
             <p>@copy; 2023 MATRIX MEDIA SOLUTION PVT. LTD.</p>
             <ul>
               <li>

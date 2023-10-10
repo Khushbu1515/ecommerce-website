@@ -12,8 +12,11 @@ const Checkout = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
-  const [user, setUser] = useState({});
+  const [buttonText, setButtonText] = useState("Checkout");
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
+  const [user, setUser] = useState({});
+  const [inputValue, setInputValue] = useState("");
   const totalCost = carts.reduce((total, cart) => total + cart.price, 0);
   useEffect(() => {
     getListCarts(); // access all the carts data
@@ -61,30 +64,30 @@ const Checkout = () => {
         console.error("Error:", error);
       });
   }, []);
-  const handlecheckout = () => {
-    const jwtToken = localStorage.getItem("JWTtoken");
-    const customHeaders = {
-      Authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
-      "Content-Type": "application/json", // Specify the content type if needed
-    };
-    axios
-      .get("http://localhost:3300/user/checkOut", { headers: customHeaders }) // Send the 'cart' object as JSON data
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success("placed the order successfully");
-          // You can handle further actions here, such as updating the cart state
-          navigate("/placedorder");
-        } else {
-          // Handle other status codes if needed
-          toast.error("Failed to add to cart");
-        }
-      })
-      .catch((error) => {
-        // Handle network errors or other errors
-        toast.error("Faileddddd to placed order");
-        console.error("Error:", error);
-      });
-  };
+  // const handlecheckout = () => {
+  //   const jwtToken = localStorage.getItem("JWTtoken");
+  //   const customHeaders = {
+  //     Authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+  //     "Content-Type": "application/json", // Specify the content type if needed
+  //   };
+  //   axios
+  //     .get("http://localhost:3300/user/checkOut", { headers: customHeaders }) // Send the 'cart' object as JSON data
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         toast.success("placed the order successfully");
+  //         // You can handle further actions here, such as updating the cart state
+  //         navigate("/orderplaced");
+  //       } else {
+  //         // Handle other status codes if needed
+  //         toast.error("Failed to add to cart");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       // Handle network errors or other errors
+  //       toast.error("Faileddddd to placed order");
+  //       console.error("Error:", error);
+  //     });
+  // };
   const handledeleteall = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -109,7 +112,37 @@ const Checkout = () => {
         console.error("Error:", error);
       });
   };
-
+  const handleCheckout = () => {
+    // Toggle the button text and show payment options
+    setButtonText("Placed order");
+    setShowPaymentOptions(true);
+    if (buttonText === "Placed order") {
+      const jwtToken = localStorage.getItem("JWTtoken");
+      const customHeaders = {
+        Authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+        "Content-Type": "application/json", // Specify the content type if needed
+      };
+      axios
+        .get("http://localhost:3300/user/checkOut", { headers: customHeaders }) // Send the 'cart' object as JSON data
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success("placed the order successfully");
+            // You can handle further actions here, such as updating the cart state
+            const uuids=response.data.uuid;
+            
+            navigate(`/orderplaced/${uuids}`);
+          } else {
+            // Handle other status codes if needed
+            toast.error("Failed to add to cart");
+          }
+        })
+        .catch((error) => {
+          // Handle network errors or other errors
+          toast.error("Faileddddd to placed order");
+          console.error("Error:", error);
+        });
+    }
+  };
   const handledelete = (ids) => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -191,7 +224,7 @@ const Checkout = () => {
               width="25"
               height="50"
               fill="currentColor"
-              class="bi bi-cart"
+              className="bi bi-cart"
               viewBox="0 0 16 16"
             >
               <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
@@ -207,9 +240,8 @@ const Checkout = () => {
               <div>
                 {user ? (
                   // If a user exists, render the profile icon and logout button
-                  <div class="profile-container">
+                  <div className="profile-container">
                     <input
-                     
                       className="profileImage"
                       type="text"
                       value={`${user.firstName
@@ -217,13 +249,19 @@ const Checkout = () => {
                         .toUpperCase()} ${user.lastName
                         .charAt(0)
                         .toUpperCase()}`}
+                      onChange={(e) => setInputValue(e.target.value)}
                     />
-                    <div class="profile-dialog">
+                    <p>{inputValue}</p>
+                    <div className="profile-dialog">
                       <ul>
-                        <li  onClick={() => navigate(`/update/${user.user_id}`)}> Profile Update</li>
-                        <li onClick={() => navigate("/placedorder")}>Orders Details</li>
+                        <li onClick={() => navigate(`/update/${user.user_id}`)}>
+                          {" "}
+                          Profile Update
+                        </li>
+                        <li onClick={() => navigate("/orderhistory")}>
+                          Orders Details
+                        </li>
                         <li onClick={handleLogout}> Logout</li>
-                        
                       </ul>
                     </div>
                   </div>
@@ -280,7 +318,7 @@ const Checkout = () => {
                     if (cartss.Product.c_id === categoryItems.cat_id) {
                       return (
                         <h5
-                          class="cart-category_names"
+                          className="cart-category_names"
                           key={categoryItems.cat_id}
                         >
                           Category Name: {categoryItems.Name}
@@ -346,7 +384,20 @@ const Checkout = () => {
         {carts.length > 0 ? (
           <div>
             <span>TOTAL COST: {totalCost}</span>
-            <button onClick={handlecheckout}>Place order</button>
+            <button onClick={handleCheckout}>{buttonText}</button>
+            {showPaymentOptions && (
+              <div className="payment">
+                <p>Choose Payment Method:</p>
+                <label>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cashOnDelivery"
+                  />
+                  Cash on Delivery
+                </label>
+              </div>
+            )}
           </div>
         ) : (
           <p>Your cart is empty.</p>
