@@ -71,7 +71,7 @@ Inventory.belongsTo(Product,{
 });
 
 
-sequelize.sync({force:false});
+sequelize.sync({alter:true});
     
 module.exports = {
   User,

@@ -1,5 +1,5 @@
 const sequelize = require('../db/database');
-const {DataTypes} = require('sequelize');
+const {DataTypes, UUID} = require('sequelize');
 const OrderDetails = sequelize.define('Order_details',
 {
     id: {
@@ -25,6 +25,10 @@ const OrderDetails = sequelize.define('Order_details',
         type: DataTypes.INTEGER(20),
         allowNull: false,
         defaultValue : "1"
+    },
+    uuid:{
+        type : DataTypes.UUID,
+        allowNull : true
     }
 },{
     timestamps:false,

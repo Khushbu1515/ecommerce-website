@@ -1,12 +1,21 @@
 const db = require("../models/index");
+const {v4 : uuidv4} = require('uuid')
 
-const getOrderDetails = async function ({ order_id }) {
-  const order = await db.Order.findAll({
+const getOrderDetails = async function ({ uuid }) {
+  const details = await db.OrderDetails.findAll({
+    include: {
+      model: db.Product,
+      include: {
+        model: db.Category,
+        attributes: ["Name"],
+      },
+    },
     where: {
-      order_id: order_id,
+      uuid: uuid
     },
   });
-  return order;
+  console.log("Db data",details);
+  return details; 
 };
 
 async function addOrderDetails({ user_id, cartData }) {
@@ -16,6 +25,7 @@ async function addOrderDetails({ user_id, cartData }) {
     },
   });
   const userOrder = Order.map((order) => order.toJSON());
+  const uuid = uuidv4();
 
   await Promise.all(
     userOrder.map(async (obj) => {
@@ -29,36 +39,16 @@ async function addOrderDetails({ user_id, cartData }) {
             product_id: obj.product_id,
             price: obj.total,
             quantity: cartItem.quantity,
+            uuid : uuid
           },
         ]);
       }
     })
   );
   const orderDetails = await db.OrderDetails.findAll();
-  const cart = [];
-await Promise.all(
-  cartData.map(async (obj) => {
-    try {
-      const data = await db.Product.findOne({
-        where: {
-          product_id: obj.product_id,
-        },
-        raw: true,
-      });
-      if (data) {
-        console.log("Cart details", data);
-        cart.push(data.toJSON());
-      } else {
-        console.log(`No product found for product_id: ${obj.product_id}`);
-      }
-    } catch (error) {
-      console.error("Error fetching product:", error);
-    }
-  })
-);
-
-  console.log(orderDetails, cart);
-  return {orderDetails, cart};
+  
+  // console.log(orderDetails);
+  return {orderDetails, uuid};
 }
 
 module.exports = {

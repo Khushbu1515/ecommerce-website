@@ -3,6 +3,11 @@ const jwtServices = require('../services/jwt.services');
 
 async function signIn (req,res){
     const data = req.body;
+    if(data.userName=="" || data.EmailAddress == "" || data.password == ""){
+        return res.status(403).json({
+            message : `Details required to log in`
+        })
+    }
     const user = await signInServices.signIn({
         EmailAddress: data.EmailAddress,
         userName: data.userName

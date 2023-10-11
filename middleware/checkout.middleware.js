@@ -13,6 +13,7 @@ async function checkOut(req,res, next){
               cartdata
             });
             req.cartdata = cartdata;
+            req.order = order;
             next();
     };
     

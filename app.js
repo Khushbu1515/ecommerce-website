@@ -33,7 +33,7 @@ server.use("/user", userRoutes);
 server.use("/cart", cartRoutes);
 server.use("/product", productRoutes);
 server.use("/order", orderRoutes);
-server.use("orderDetails", orderDetailsRoutes);
+server.use("/orderDetails", orderDetailsRoutes);
 server.use("/user", userSignup);
 server.use("/user", usersignIn);
 server.use("/user", userProfile);
