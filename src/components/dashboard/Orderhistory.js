@@ -5,15 +5,17 @@ import { toast } from "react-toastify";
 //import Skeleton from "./Skeleton";
 import "./file.css";
 const Orderhistory = () => {
+  let isScrolling = false;
+  const [moreData, setNoMoreData] = useState("");
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const totalCost = items.reduce((total, items) => total + items.price, 0);
   useEffect(() => {
-    fetchData(page);
+    fetchData();
   }, []);
 
-  const fetchData = (pageNum) => {
+  const fetchData = (pages = 1) => {
     setIsLoading(true);
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -21,18 +23,25 @@ const Orderhistory = () => {
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .get(`http://localhost:3300/user/profile?page=${pageNum}&size=${5}`, {
+      .get(`http://localhost:3300/user/profile?page=${pages}&size=${5}`, {
         headers: customHeaders,
       }) // Send the 'cart' object as JSON data
       .then((response) => {
         if (response.status === 200) {
           // You can handle further actions here, such as updating the cart state
 
-          setItems((prevItems) => [
-            ...prevItems,
-            ...response.data.profile.OrderDetails,
-          ]);
-          setPage(pageNum + 1);
+          if (response.data.profile.OrderDetails.length > 0) {
+            // There's more data to add
+            setItems((prevItems) => [
+              ...prevItems,
+              ...response.data.profile.OrderDetails,
+            ]);
+            setPage(pages + 1);
+          } else {
+            // No more data to fetch, notify the user
+            toast.info("End of the cart");
+            setNoMoreData("no data");
+          }
         }
       })
       .catch((error) => {
@@ -41,28 +50,31 @@ const Orderhistory = () => {
         setIsLoading(false);
         console.error("Error:", error);
       });
-
-    //setIsLoading(false); // Set isLoading to false regardless of success or failure
+    setIsLoading(false);
   };
-  console.log(items, "itemsss");
+  const handleScroll = () => {
+    if (
+      !isScrolling &&
+      window.innerHeight + window.scrollY >= document.body.offsetHeight
+    ) {
+      
+        isScrolling = true;
+        alert("you  are the bottom of the page ");
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight &&
-        !isLoading
-      ) {
         fetchData(page); // Fetch more data when the user scrolls to the bottom of the page
-      }
-      setIsLoading(false);
-    };
-
+        setTimeout(() => {
+          isScrolling = false; // Reset the flag after a delay
+        }, 1000); // Adjust the delay as needed
+      
+    }
+  };
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [isLoading, page]);
+  }, [page]);
 
   return (
     <div>
@@ -71,51 +83,43 @@ const Orderhistory = () => {
       </nav>
 
       <div className="cart-items">
-        {isLoading ? (
-          items.length > 0 ? (
-            items.map((item, index) => (
-              <div className="carts" key={index}>
-                <div>
-                  <img className="cart-item-images" src={spice} alt="" />
-                </div>
-                <div className="cart-item-detailss">
-                  <p className="cart-category_names">
-                    Order id: {item.order_id}
-                  </p>
-
-                  <p className="cart-category_names">
-                    quantity: {item.quantity}
-                  </p>
-                  <p className="cart-category_names">
-                    Category Name: {item.Product.Category.Name}
-                  </p>
-                  <p className="cart-category_names">
-                    Product Name: {item.Product.product_name}
-                  </p>
-                  <p className="cart-category_names">Sub total: {item.price}</p>
-                </div>
+        {items.length > 0 ? (
+          items.map((item, index) => (
+            <div className="carts" key={index}>
+              <div>
+                <img className="cart-item-images" src={spice} alt="" />
               </div>
-            ))
-          ) : (
-            <p>No items are selected by the user</p>
-          )
+              <div className="cart-item-detailss">
+                <p className="cart-category_names">Order id: {item.order_id}</p>
+
+                <p className="cart-category_names">quantity: {item.quantity}</p>
+                <p className="cart-category_names">
+                  Category Name: {item.Product.Category.Name}
+                </p>
+                <p className="cart-category_names">
+                  Product Name: {item.Product.product_name}
+                </p>
+                <p className="cart-category_names">Sub total: {item.price}</p>
+              </div>
+            </div>
+          ))
         ) : (
-          // Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} />)
-          null
+          <p>No items are selected by the user</p>
         )}
       </div>
 
-      {items && items.length > 0 && isLoading ? (
-        <div>
-          <span className="payment">TOTAL COST: {totalCost}</span>
-          <p>This is the end of the cart.</p>
+      {moreData === "no data" ? (
+        <div className="endcart">
+          <h1>TOTAL COST: {totalCost}</h1>
+          <h2> This is the end of the cart.</h2>
         </div>
-      ) : items && items.length === 0 ? (
-        <p>No items in the order history.</p>
       ) : (
-        <p>Page {page} is loading....</p>
+        <p>page {page} Loading...</p>
       )}
-      
+
+      {!isLoading && !isScrolling && items.length === 0 && (
+        <p>No items in the order history.</p>
+      )}
     </div>
   );
 };

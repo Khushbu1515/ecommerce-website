@@ -8,14 +8,20 @@ import "../dashboard/file.css";
 const Updateprofile = () => {
   const { user_id } = useParams();
   const navigate = useNavigate();
-  // const [user, setUser] = useState({});
-  const [formDatas, setFormDatas] = useState({ 
+
+  const [formDatas, setFormDatas] = useState({
     firstName: "",
     lastName: "",
     userName: "",
     EmailAddress: "",
   });
-
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    userName: "",
+    EmailAddress: "",
+  });
+  // initially call the api to fetch the user details
   useEffect(() => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -23,14 +29,12 @@ const Updateprofile = () => {
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .get("http://localhost:3300/user/getuser",{
+      .get("http://localhost:3300/user/getuser", {
         headers: customHeaders,
       })
       .then((response) => {
         if (response.status === 200) {
-          
           setFormDatas(response.data.profile);
-          
         } else {
           toast.error("Category not found");
         }
@@ -40,26 +44,49 @@ const Updateprofile = () => {
       });
   }, [user_id]);
 
-  
-  const handleChange = (e) => {  // onchange set the data
+  const handleChange = (e) => {
+    // onchange set the data
     const { name, value } = e.target;
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     setFormDatas((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleupdate = () => { // update the data as we click on the button
+  const handleupdate = (e) => {
+    e.preventDefault();
+
+    if (
+      !formDatas.firstName ||
+      !formDatas.lastName ||
+      !formDatas.userName ||
+      !formDatas.EmailAddress
+    ) {
+      // Set error messages htmlFor empty fields
+      setErrors({
+        firstName: !formDatas.firstName ? "this is required field" : "",
+        lastName: !formDatas.lastName ? "this is required field" : "",
+        userName: !formDatas.userName ? "this is required field" : "",
+        EmailAddress: !formDatas.EmailAddress ? "this is required field" : "",
+      });
+      return; // Prevent form submission
+    }
+    // Validate required fields
+    else {
+      toast.success("update the data succesfully");
+    }
+    // update the data as we click on the button
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
     axios
-      .put("http://localhost:3300/user/update", formDatas, {  
-        headers: customHeaders,    // pass the authorization to update the data
+      .put("http://localhost:3300/user/update", formDatas, {
+        headers: customHeaders, // pass the authorization to update the data
       })
       .then((response) => {
         if (response.status === 200) {
           toast.success("update the data successfully");
-          navigate("/")
+          navigate("/");
         } else {
           toast.error(" not updated");
         }
@@ -69,9 +96,9 @@ const Updateprofile = () => {
         console.error("Error fetching products:", error);
       });
   };
-
-  const handledelete = () => {   
-    const jwtToken = localStorage.getItem("JWTtoken");   // delete the user when we click on the button
+  // function for delete one item
+  const handledelete = () => {
+    const jwtToken = localStorage.getItem("JWTtoken"); // delete the user when we click on the button
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
@@ -84,8 +111,7 @@ const Updateprofile = () => {
         if (response.status === 200) {
           toast.success("delete the user successfully");
           localStorage.removeItem("JWTtoken");
-          navigate("/")
-         
+          navigate("/");
         } else {
           toast.error(" not deleted");
         }
@@ -93,16 +119,16 @@ const Updateprofile = () => {
       .catch((error) => {
         console.error("Error fetching products:", error);
       });
-  }; 
-   
+  };
+
   return (
     <div>
       <section className="gradient-form">
         <div className="container py-5 h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
-            <div >
-              <div >
-                <div >
+            <div>
+              <div>
+                <div>
                   <div className="col-lg-6">
                     <div className="container">
                       <form className="form">
@@ -124,6 +150,7 @@ const Updateprofile = () => {
                             value={formDatas.firstName}
                             onChange={handleChange}
                           />
+                          <div className="validation">{errors.firstName}</div>
                         </div>
                         <br />
 
@@ -142,6 +169,7 @@ const Updateprofile = () => {
                             value={formDatas.lastName}
                             onChange={handleChange}
                           />
+                          <div className="validation">{errors.lastName}</div>
                         </div>
                         <br />
 
@@ -160,6 +188,7 @@ const Updateprofile = () => {
                             value={formDatas.userName}
                             onChange={handleChange}
                           />
+                          <div className="validation">{errors.userName}</div>
                         </div>
                         <br />
 
@@ -178,6 +207,7 @@ const Updateprofile = () => {
                             value={formDatas.EmailAddress}
                             onChange={handleChange}
                           />
+                          <div className="validation">{errors.EmailAddress}</div>
                         </div>
 
                         <br />

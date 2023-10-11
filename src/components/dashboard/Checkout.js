@@ -64,30 +64,7 @@ const Checkout = () => {
         console.error("Error:", error);
       });
   }, []);
-  // const handlecheckout = () => {
-  //   const jwtToken = localStorage.getItem("JWTtoken");
-  //   const customHeaders = {
-  //     Authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
-  //     "Content-Type": "application/json", // Specify the content type if needed
-  //   };
-  //   axios
-  //     .get("http://localhost:3300/user/checkOut", { headers: customHeaders }) // Send the 'cart' object as JSON data
-  //     .then((response) => {
-  //       if (response.status === 200) {
-  //         toast.success("placed the order successfully");
-  //         // You can handle further actions here, such as updating the cart state
-  //         navigate("/orderplaced");
-  //       } else {
-  //         // Handle other status codes if needed
-  //         toast.error("Failed to add to cart");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       // Handle network errors or other errors
-  //       toast.error("Faileddddd to placed order");
-  //       console.error("Error:", error);
-  //     });
-  // };
+ 
   const handledeleteall = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {

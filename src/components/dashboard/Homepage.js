@@ -3,7 +3,7 @@ import "./file.css";
 import axios from "axios";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import ecomm from "../assets/ecomm.png";
@@ -20,7 +20,7 @@ const Homepage = () => {
   const [sortByPrice, setSortByPrice] = useState("");
   const [product, setProduct] = useState([]);
   const [category, setCategory] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [modalData, setModalData] = useState({
     category: "",
     product_name: "",
@@ -54,7 +54,7 @@ const Homepage = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  
+
   useEffect(() => {
     axios
       .get("http://localhost:3300/category/getAll")
@@ -86,7 +86,6 @@ const Homepage = () => {
       });
   }, []);
   useEffect(() => {
-   
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -133,24 +132,17 @@ const Homepage = () => {
         console.error("Error fetching products:", error);
       });
   }, []);
- 
+
   const handleSaveProduct = (event) => {
     event.preventDefault();
 
-    if (
-      
-      !modalData.product_name ||
-      !modalData.description||
-      !modalData.price 
-     
-    ) {
+    if (!modalData.product_name || !modalData.description || !modalData.price) {
       // Set error messages for empty fields
       setErrors({
-        category:!modalData.category ? "this is required field"  : "",
-        product_name:!modalData.product_name ? "this is required field"  : "",
-        description: !modalData.description ? "this is required field"  : "",
-        price: !modalData.price ? "this is required field"  : "",
-
+        category: !modalData.category ? "this is required field" : "",
+        product_name: !modalData.product_name ? "this is required field" : "",
+        description: !modalData.description ? "this is required field" : "",
+        price: !modalData.price ? "this is required field" : "",
       });
       return; // Prevent form submission
     }
@@ -187,6 +179,7 @@ const Homepage = () => {
             price: "",
           });
           closeModal();
+          productGet()
         } else {
           // Handle other status codes if needed
           toast.error(" failed");
@@ -201,7 +194,7 @@ const Homepage = () => {
 
   const handlechange = (e) => {
     const { name, value } = e.target;
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // reset the errors when we type
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handlepricechange = (price) => {
@@ -209,8 +202,12 @@ const Homepage = () => {
     setErrors((prevErrors) => ({ ...prevErrors, price: "" }));
     setModalData((prevData) => ({ ...prevData, price: cost }));
   };
-  
   useEffect(() => {
+    productGet(); // update all the carts data
+  }, []);
+
+
+   const productGet=() => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -230,18 +227,19 @@ const Homepage = () => {
       .catch((error) => {
         console.error("Error fetching products:", error);
       });
-  }, []);
+  };
+  // navigate to the cart interface
   const handleBuyNow = (product) => {
-    
     navigate(`/cart/${product.product_id}/${product.c_id}`);
   };
+  // call the function for filtering the data according to category and price
   const filter = (catIds, selectedOption) => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
-    
+
     axios
       .get(
         `http://localhost:3300/product/category_product?c_id=${catIds}&price=${selectedOption}`,
@@ -253,7 +251,6 @@ const Homepage = () => {
         if (response.status === 200) {
           toast.success("filter the data");
 
-          
           setFilteredData(response.data.data);
         } else {
           toast.error("user not found");
@@ -263,6 +260,7 @@ const Homepage = () => {
         console.error("Error fetching products:", error);
       });
   };
+  // function for sorting the price
   const handleSortChange = (event) => {
     const selectedOption = event.target.value;
     setSortByPrice(selectedOption);
@@ -277,60 +275,55 @@ const Homepage = () => {
 
     filter(selectedValue, sortByPrice); // Pass both selectedValue and sortByPrice
   };
+  // function for searching
   const handleSearch = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
       "Content-Type": "application/json", // Specify the content type if needed
     };
-    if (selectedCategory||(selectedCategory&&sortByPrice)) {
-      
+    if (selectedCategory || (selectedCategory && sortByPrice)) {
       axios
-      .get(
-        `http://localhost:3300/product/category_product?c_id=${selectedCategory}&price=${sortByPrice}&Name=${searchQuery}`,
-        {
-          headers: customHeaders,
-        }
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success("filterss the data");
+        .get(
+          `http://localhost:3300/product/category_product?c_id=${selectedCategory}&price=${sortByPrice}&Name=${searchQuery}`,
+          {
+            headers: customHeaders,
+          }
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success("filterss the data");
 
-          
-          setFilteredData(response.data.data);
-        } else {
-          toast.error("user not found");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching products:", error);
-      });
+            setFilteredData(response.data.data);
+          } else {
+            toast.error("user not found");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching products:", error);
+        });
+    } else {
+      axios
+        .get(`http://localhost:3300/product/getAll?Name=${searchQuery}`, {
+          headers: customHeaders,
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            setAllData(response.data.data);
+          } else {
+            toast.error("user not found");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching products:", error);
+        });
     }
-    else
-    {
-    axios
-      .get(`http://localhost:3300/product/getAll?Name=${searchQuery}`, {
-        headers: customHeaders,
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setAllData(response.data.data);
-         
-        } else {
-          toast.error("user not found");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching products:", error);
-      });
   };
-}
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
     handleSearch(); // Calls the search function when the form is submitted
   };
-  
-   
+
   return (
     <div>
       <div>
@@ -354,9 +347,7 @@ const Homepage = () => {
               product.length > 0 && ( // Check if cartlist is not empty
                 <div>
                   <svg
-                    onClick={() =>
-                      navigate(`/checkout`)
-                    }
+                    onClick={() => navigate(`/checkout`)}
                     xmlns="http://www.w3.org/2000/svg"
                     width="25"
                     height="50"
@@ -374,303 +365,301 @@ const Homepage = () => {
                 </div>
               )}
           </div>
-          
-            {isLoggedIn && Object.keys(user).length > 0 ? (
-              <div>
-                {user ? (
-                  // If a user exists, render the profile icon and logout button
-                  <div className="profile-container">
-                    <input
-                     
-                      className="profileImage"
-                      type="text"
-                      value={`${user.firstName
-                        .charAt(0)
-                        .toUpperCase()} ${user.lastName
-                        .charAt(0)
-                        .toUpperCase()}`}
-                        onChange={(e)=> setInputValue(e.target.value)}
-                        />
-                        <p>{inputValue}</p>
-                    <div className="profile-dialog">
-                      <ul>
-                        <li  onClick={() => navigate(`/update/${user.user_id}`)}> Profile Update</li>
-                        <li onClick={() => navigate("/orderhistory")}>Orders Details</li>
-                        <li onClick={handleLogout}> Logout</li>
-                        
-                      </ul>
-                    </div>
-                  </div>
-                ) : (
-                  // If no user exists, render login and signup buttons
-                  <div>
-                    <button
-                      className="user-actions"
-                      onClick={() => navigate("/login")}
-                    >
-                      Login
-                    </button>
-                    <button
-                      className="user-actions"
-                      onClick={() => navigate("/signup")}
-                    >
-                      Signup
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div>
-                <button
-                  className="user-actions"
-                  onClick={() => navigate("/signup")}
-                >
-                  Signup
-                </button>
-                <button className="user-actions" onClick={handleLogin}>
-                  Login
-                </button>
-              </div>
-            )}
-          
-        </nav>
-       
-          <Container
-            fluid
-            style={{
-              backgroundColor: "white",
-              display: "flex",
-              flexDirection: "column",
-              height: "100vh",
-            }}
-          >
-            <Row>
-              <Col xs={6}>
-                <div className="button">
-                  <Button
-                    className="product"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    Create product
-                  </Button>
-                </div>
-              </Col>
 
-              <Col xs={6}>
-                <form onSubmit={handleSubmit}>
+          {isLoggedIn && Object.keys(user).length > 0 ? (
+            <div>
+              {user ? (
+                // If a user exists, render the profile icon and logout button
+                <div className="profile-container">
                   <input
+                    className="profileImage"
                     type="text"
-                    name="search"
-                    value={searchQuery}
-                    onChange={(event)=>setSearchQuery(event.target.value)}
-                    placeholder="Search..."
+                    value={`${user.firstName
+                      .charAt(0)
+                      .toUpperCase()} ${user.lastName.charAt(0).toUpperCase()}`}
+                    onChange={(e) => setInputValue(e.target.value)}
                   />
-                  <button type="submit">Search</button>
-                </form>
-              </Col>
-              <Col md={2}>
-                <h3>Category</h3>
-                <form>
-                  {category && category.length > 0 ? (
-                    category.map((categories, index) => {
-                      if (categories.c_id === null) {
-                        return (
-                          <div key={categories.cat_id}>
-                            <input
-                              type="radio"
-                              id={`category_${categories.cat_id}`}
-                              name="category" // Use the same name for all radio buttons in the group
-                              value={categories.cat_id}
-                              onChange={(event) => handleCategoryChange(event)}
-                            />
-                            <label htmlFor={`category_${categories.cat_id}`}>
-                              {categories.Name}
-                            </label>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })
-                  ) : (
-                    <p>No categories available.</p>
-                  )}
-                </form>
-                <Form>
-                  <h1>Price</h1>
-                  <Form.Control as="select"  onChange={handleSortChange}>
-                    <option value="Select">Sorted by price</option>
-                    <option value="DESC">High to Low</option>
-                    <option value="ASC">Low to High</option>
-                  </Form.Control>
-                </Form>
-              </Col>
-              <Col md={8}>
-                <div>
-                  {selectedCategory||(selectedCategory && searchQuery) || (selectedCategory && sortByPrice)
-                    ? filteredData.map((item, index) => {
-                        // Find the corresponding category for the product
-                        const productCategory = category.find(
-                          (categoryItem) => item.c_id === categoryItem.cat_id
-                        );
-
-                        return (
-                          <div className="card" key={index}>
-                            <img src={spice} className="img" alt="" />
-                            <div className="card-body">
-                              <h5 className="card-title">
-                                Category: {productCategory.Name}
-                              </h5>
-                              <h5 className="card-title">
-                                Product Name: {item.product_name}
-                              </h5>
-                              <p className="card-title">
-                                Description: {item.description}
-                              </p>
-                              <p className="card-title">Price: {item.price}</p>
-                            </div>
-                            <button onClick={() => handleBuyNow(item)}>
-                              Buy now
-                            </button>
-                          </div>
-                        );
-                      })
-                    : alldata.map((datas) => (
-                        <div key={datas.Name}>
-                          <h1>{datas.Name}</h1>
-                          <div>
-                            {datas.Products.map((product, index) => {
-                              // Find the corresponding category for the product
-                              const productCategory = category.find(
-                                (categoryItem) =>
-                                  product.c_id === categoryItem.cat_id
-                              );
-
-                              return (
-                                <div className="card" key={index}>
-                                  <img src={spice} className="img" alt="" />
-                                  <div className="card-body">
-                                    <h5 className="card-title">
-                                      Category: {productCategory.Name}
-                                    </h5>
-                                    <h5 className="card-title">
-                                      Product Name: {product.product_name}
-                                    </h5>
-                                    <p className="card-title">
-                                      Description: {product.description}
-                                    </p>
-                                    <p className="card-title">
-                                      Price: {product.price}
-                                    </p>
-                                  </div>
-                                  <button onClick={() => handleBuyNow(product)}>
-                                    Buy now
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
+                  <p>{inputValue}</p>
+                  <div className="profile-dialog">
+                    <ul>
+                      <li onClick={() => navigate(`/update/${user.user_id}`)}>
+                        {" "}
+                        Profile Update
+                      </li>
+                      <li onClick={() => navigate("/orderhistory")}>
+                        Orders Details
+                      </li>
+                      <li onClick={handleLogout}> Logout</li>
+                    </ul>
+                  </div>
                 </div>
-              </Col>
-            </Row>
-          { isModalOpen && 
-            (<div
-            className="modal-overlay"
-           
-          >
-          <div className="modal-content">
-          <h2 className="title">Create Product</h2>
-          <form>
-            <div className="form-group">
-              <label htmlFor="category">Category:</label>
-              <select
-                id="category"
-                className="form-control"
-                name="category"
-                value={modalData.category}
-                onChange={handlechange}
+              ) : (
+                // If no user exists, render login and signup buttons
+                <div>
+                  <button
+                    className="user-actions"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login
+                  </button>
+                  <button
+                    className="user-actions"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Signup
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <button
+                className="user-actions"
+                onClick={() => navigate("/signup")}
               >
-                <option value="">Select a category</option>
+                Signup
+              </button>
+              <button className="user-actions" onClick={handleLogin}>
+                Login
+              </button>
+            </div>
+          )}
+        </nav>
 
+        <Container
+          fluid
+          style={{
+            backgroundColor: "white",
+            display: "flex",
+            flexDirection: "column",
+            height: "100vh",
+          }}
+        >
+          <Row>
+            <Col xs={6}>
+              <div className="button">
+                <Button
+                  className="product"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Create product
+                </Button>
+              </div>
+            </Col>
+
+            <Col xs={6}>
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  name="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search..."
+                />
+                <button type="submit">Search</button>
+              </form>
+            </Col>
+            <Col md={2}>
+              <h3>Category</h3>
+              <form>
                 {category && category.length > 0 ? (
                   category.map((categories, index) => {
                     if (categories.c_id === null) {
                       return (
-                        <option
-                          id="cat"
-                          key={index}
-                          value={categories.c_id}
-                        >
-                          {categories.Name}
-                        </option>
+                        <div key={categories.cat_id}>
+                          <input
+                            type="radio"
+                            id={`category_${categories.cat_id}`}
+                            name="category" // Use the same name for all radio buttons in the group
+                            value={categories.cat_id}
+                            onChange={(event) => handleCategoryChange(event)}
+                          />
+                          <label htmlFor={`category_${categories.cat_id}`}>
+                            {categories.Name}
+                          </label>
+                        </div>
                       );
                     }
+                    return null;
                   })
                 ) : (
-                  <option>no categories available</option>
+                  <p>No categories available.</p>
                 )}
-              </select>
-              <div className="validation">{errors.category}</div>
-            </div>
-            <br />
+              </form>
+              <Form>
+                <h1>Price</h1>
+                <Form.Control as="select" onChange={handleSortChange}>
+                  <option value="Select">Sorted by price</option>
+                  <option value="DESC">High to Low</option>
+                  <option value="ASC">Low to High</option>
+                </Form.Control>
+              </Form>
+            </Col>
+            <Col md={8}>
+              <div>
+                {selectedCategory ||
+                (selectedCategory && searchQuery) ||
+                (selectedCategory && sortByPrice)
+                  ? filteredData.map((item, index) => {
+                      // Find the corresponding category for the product
+                      const productCategory = category.find(
+                        (categoryItem) => item.c_id === categoryItem.cat_id
+                      );
 
-            <div className="form-group">
-              <label htmlFor="product_name">product_name:</label>
-              <input
-                type="text"
-                id="product_name"
-                className="form-control"
-                name="product_name"
-                value={modalData.product_name}
-                onChange={handlechange}
-              />
-              <div className="validation">{errors.product_name}</div>
-            </div>
-            <br />
-            <div className="form-group">
-              <label htmlFor="description">description:</label>
-              <input
-                type="text"
-                id="description"
-                className="form-control"
-                name="description"
-                value={modalData.description}
-                onChange={handlechange}
-              />
-              <div className="validation">{errors.description}</div>
-            </div>
-            <br />
-            <div className="form-group">
-              <label htmlFor="c_id">price:</label>
-              <input
-                type="number"
-                id="price"
-                className="form-control"
-                name="price:"
-                value={modalData.price}
-                onChange={(e) => handlepricechange(e.target.value)}
-              />
-              <div className="validation">{errors.price}</div>
+                      return (
+                        <div className="card" key={index}>
+                          <img src={spice} className="img" alt="" />
+                          <div className="card-body">
+                            <h5 className="card-title">
+                              Category: {productCategory.Name}
+                            </h5>
+                            <h5 className="card-title">
+                              Product Name: {item.product_name}
+                            </h5>
+                            <p className="card-title">
+                              Description: {item.description}
+                            </p>
+                            <p className="card-title">Price: {item.price}</p>
+                          </div>
+                          <button onClick={() => handleBuyNow(item)}>
+                            Buy now
+                          </button>
+                        </div>
+                      );
+                    })
+                  : alldata.map((datas) => (
+                      <div key={datas.Name}>
+                        <h1>{datas.Name}</h1>
+                        <div>
+                          {datas.Products.map((product, index) => {
+                            // Find the corresponding category for the product
+                            const productCategory = category.find(
+                              (categoryItem) =>
+                                product.c_id === categoryItem.cat_id
+                            );
 
+                            return (
+                              <div className="card" key={index}>
+                                <img src={spice} className="img" alt="" />
+                                <div className="card-body">
+                                  <h5 className="card-title">
+                                    Category: {productCategory.Name}
+                                  </h5>
+                                  <h5 className="card-title">
+                                    Product Name: {product.product_name}
+                                  </h5>
+                                  <p className="card-title">
+                                    Description: {product.description}
+                                  </p>
+                                  <p className="card-title">
+                                    Price: {product.price}
+                                  </p>
+                                </div>
+                                <button onClick={() => handleBuyNow(product)}>
+                                  Buy now
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </Col>
+          </Row>
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2 className="title">Create Product</h2>
+                <form>
+                  <div className="form-group">
+                    <label htmlFor="category">Category:</label>
+                    <select
+                      id="category"
+                      className="form-control"
+                      name="category"
+                      value={modalData.category}
+                      onChange={handlechange}
+                    >
+                      <option value="">Select a category</option>
+
+                      {category && category.length > 0 ? (
+                        category.map((categories, index) => {
+                          if (categories.c_id === null) {
+                            return (
+                              <option
+                                id="cat"
+                                key={index}
+                                value={categories.c_id}
+                              >
+                                {categories.Name}
+                              </option>
+                            );
+                          }
+                        })
+                      ) : (
+                        <option>no categories available</option>
+                      )}
+                    </select>
+                    <div className="validation">{errors.category}</div>
+                  </div>
+                  <br />
+
+                  <div className="form-group">
+                    <label htmlFor="product_name">product_name:</label>
+                    <input
+                      type="text"
+                      id="product_name"
+                      className="form-control"
+                      name="product_name"
+                      value={modalData.product_name}
+                      onChange={handlechange}
+                    />
+                    <div className="validation">{errors.product_name}</div>
+                  </div>
+                  <br />
+                  <div className="form-group">
+                    <label htmlFor="description">description:</label>
+                    <input
+                      type="text"
+                      id="description"
+                      className="form-control"
+                      name="description"
+                      value={modalData.description}
+                      onChange={handlechange}
+                    />
+                    <div className="validation">{errors.description}</div>
+                  </div>
+                  <br />
+                  <div className="form-group">
+                    <label htmlFor="c_id">price:</label>
+                    <input
+                      type="number"
+                      id="price"
+                      className="form-control"
+                      name="price:"
+                      value={modalData.price}
+                      onChange={(e) => handlepricechange(e.target.value)}
+                    />
+                    <div className="validation">{errors.price}</div>
+                  </div>
+                  <br />
+                </form>
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={closeModal}>
+                    Close
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleSaveProduct}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
             </div>
-            <br />
-          </form>
-          <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={closeModal}>
-              Close
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={handleSaveProduct}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-          </div>)}
-          </Container>
-        
+          )}
+        </Container>
 
         <footer>
           <div className="footer-content">

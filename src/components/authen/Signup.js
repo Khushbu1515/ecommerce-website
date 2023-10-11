@@ -13,19 +13,43 @@ const SignUp = () => {
     EmailAddress: "",
     password: "",
   });
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    EmailAddress: "",
+    password: "",
+  });
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     setFormData({ ...formData, [name]: value });
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.EmailAddress ||
+      !formData.password
+    ) {
+      // Set error messages htmlFor empty fields
+      setErrors({
+        firstName: !formData.firstName ? "this is required field" : "",
+        lastName: !formData.lastName ? "this is required field" : "",
+        EmailAddress: !formData.EmailAddress ? "this is required field" : "",
+        password: !formData.password ? "this is required field" : "",
+      });
+      return; // Prevent form submission
+    }
+    // Validate required fields
+    else {
+      toast.success("submit the data succesfully");
+    }
     // Send the form data to the backend using Axios
     axios
       .post("http://localhost:3300/user/signUp", formData)
       .then((response) => {
         if (response.status === 200) {
-          // Signup was successful
           // You can show a success message to the user
           toast.success("Signup successful");
           // Reset the form data to empty values
@@ -87,7 +111,10 @@ const SignUp = () => {
                         <br />
 
                         <div className="fields">
-                          <label className="form-label" for="form2Example11">
+                          <label
+                            className="form-label"
+                            htmlFor="form2Example11"
+                          >
                             firstName:
                           </label>
                           <input
@@ -98,10 +125,14 @@ const SignUp = () => {
                             value={formData.firstName}
                             onChange={handleChange}
                           />
+                          <div className="validation">{errors.firstName}</div>
                           <div />
                           <br />
                           <div className="fields">
-                            <label className="form-label" for="form2Example11">
+                            <label
+                              className="form-label"
+                              htmlFor="form2Example11"
+                            >
                               lastName:
                             </label>
                             <input
@@ -112,11 +143,15 @@ const SignUp = () => {
                               value={formData.lastName}
                               onChange={handleChange}
                             />
+                            <div className="validation">{errors.lastName}</div>
                             <div />
                             <br />
 
                             <div className="fields">
-                              <label className="form-label" for="form2Example11">
+                              <label
+                                className="form-label"
+                                htmlFor="form2Example11"
+                              >
                                 EmailAddress:
                               </label>
                               <input
@@ -127,10 +162,16 @@ const SignUp = () => {
                                 value={formData.EmailAddress}
                                 onChange={handleChange}
                               />
+                              <div className="validation">
+                                {errors.EmailAddress}
+                              </div>
                             </div>
 
                             <div className="fields">
-                              <label className="form-label" for="form2Example11">
+                              <label
+                                className="form-label"
+                                htmlFor="form2Example11"
+                              >
                                 password:
                               </label>
                               <input
@@ -141,12 +182,15 @@ const SignUp = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                               />
+                              <div className="validation">
+                                {errors.password}
+                              </div>
                             </div>
 
                             <br />
                             <div className="d-flex align-items-center justify-content-center pb-4">
                               <button
-                              className="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"
+                                className="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"
                                 type="button"
                                 onClick={handleSubmit}
                               >

@@ -11,13 +11,39 @@ const Login = () => {
     EmailAddress: "",
     password: "",
   });
+  const [errors, setErrors] = useState({
+    userName: "",
+    EmailAddress: "",
+    password: "",
+  });
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     setFormData({ ...formData, [name]: value });
   };
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (
+      
+      !formData.userName ||
+      !formData.EmailAddress||
+      !formData.password 
+     
+    ) {
+      // Set error messages htmlFor empty fields
+      setErrors({
+        userName:!formData.userName? "this is required field"  : "",
+        EmailAddress:!formData.EmailAddress ? "this is required field"  : "",
+        password: !formData.password  ? "this is required field"  : "",
+       
 
+      });
+      return; // Prevent form submission
+    }
+    // Validate required fields
+    else {
+      toast.success("submit the data succesfully");
+    }
     // Send the form data to the backend using Axios
     formData
       ? (axios
@@ -144,6 +170,7 @@ const Login = () => {
                               value={formData.userName}
                               onChange={handleChange}
                             />
+                            <div className="validation">{errors.userName}</div>
                             <div />
                             <br />
                             <div className="fields">
@@ -158,6 +185,7 @@ const Login = () => {
                                 value={formData.EmailAddress}
                                 onChange={handleChange}
                               />
+                              <div className="validation">{errors.EmailAddress}</div>
                               <div />
                               <br />
                               <div className="fields">
@@ -172,6 +200,7 @@ const Login = () => {
                                   value={formData.password}
                                   onChange={handleChange}
                                 />
+                                <div className="validation">{errors.password}</div>
                               </div>
                             </div>
                             <div className="text-center pt-1 mb-5 pb-1">

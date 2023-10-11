@@ -11,7 +11,7 @@ const Orderplaced = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  
+   // initially fetch the data with unique uuid
   const fetchData = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -25,7 +25,7 @@ const Orderplaced = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          toast.success("orderrrrrrr")
+          
           
           setItems(response.data.data);
         }
@@ -36,7 +36,7 @@ const Orderplaced = () => {
         console.error("Error:", error);
       });
   };
-  //console.log("itemmmm",response.data.recentOrdered)
+  
    const totalCost = items.reduce((total, item) => total + item.price, 0);
 
   return (
