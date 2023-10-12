@@ -128,7 +128,7 @@ const Checkout = () => {
     };
     console.log(ids, "idddd");
     axios
-      .delete(`http://localhost:3300/cart/removeCart?product_id=${ids}`, {
+      .delete(`http://localhost:3300/cart/removeAllCart?product_id=${ids}`, {
         headers: customHeaders,
       })
 
@@ -278,11 +278,11 @@ const Checkout = () => {
       </div>
 
       <div className="cart-items">
-        <div>
-          <button className="allitem" onClick={handledeleteall}>
-            Clear items
-          </button>
-        </div>
+      {carts.length > 0 && (
+        <button className="allitem" onClick={handledeleteall}>
+          Clear items
+        </button>
+      )}
         {carts && carts.length > 0 ? (
           <div>
             {carts.map((cartss, index) => (

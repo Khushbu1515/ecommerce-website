@@ -69,10 +69,25 @@ const Updateprofile = () => {
       });
       return; // Prevent form submission
     }
-    // Validate required fields
-    else {
-      toast.success("update the data succesfully");
+    else if (!/^[A-Za-z]+$/.test(formDatas.firstName) || !/^[A-Za-z]+$/.test(formDatas.lastName)||!/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formDatas.EmailAddress)) {
+      // Set error messages for invalid names
+      setErrors({
+        firstName: !/^[A-Za-z]+$/.test(formDatas.firstName)
+          ? "First name should only contain  desired letters"
+          : "",
+        lastName: !/^[A-Za-z]+$/.test(formDatas.lastName)
+          ? "Last name should only contain desired letters"
+          : "",
+        userName: !formDatas.userName ? "Please fill in your username" : "",
+        EmailAddress: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formDatas.EmailAddress)
+          ? "Please fill desired email address"
+          : "",
+      });
+      return; // Prevent form submission
     }
+    
+    
+    
     // update the data as we click on the button
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -85,14 +100,14 @@ const Updateprofile = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          toast.success("update the data successfully");
+         
           navigate("/");
         } else {
           toast.error(" not updated");
         }
       })
       .catch((error) => {
-        toast.error(" not updatedddd");
+        toast.error(" not updated enter valid data");
         console.error("Error fetching products:", error);
       });
   };

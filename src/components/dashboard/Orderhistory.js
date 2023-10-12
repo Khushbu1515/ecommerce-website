@@ -10,7 +10,11 @@ const Orderhistory = () => {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const totalCost = items.reduce((total, items) => total + items.price, 0);
+  const [totalCost, setTotalCost] = useState(0);
+  useEffect(() => {
+    // Calculate total cost when items change
+    setTotalCost(items.reduce((total, item) => total + item.price, 0));
+  }, [items]);
   useEffect(() => {
     fetchData();
   }, []);
@@ -57,15 +61,13 @@ const Orderhistory = () => {
       !isScrolling &&
       window.innerHeight + window.scrollY >= document.body.offsetHeight
     ) {
-      
-        isScrolling = true;
-        alert("you  are the bottom of the page ");
+      isScrolling = true;
+      alert("you  are the bottom of the page ");
 
-        fetchData(page); // Fetch more data when the user scrolls to the bottom of the page
-        setTimeout(() => {
-          isScrolling = false; // Reset the flag after a delay
-        }, 1000); // Adjust the delay as needed
-      
+      fetchData(page); // Fetch more data when the user scrolls to the bottom of the page
+      setTimeout(() => {
+        isScrolling = false; // Reset the flag after a delay
+      }, 1000); // Adjust the delay as needed
     }
   };
   useEffect(() => {
@@ -108,18 +110,22 @@ const Orderhistory = () => {
         )}
       </div>
 
-      {moreData === "no data" ? (
-        <div className="endcart">
+      <div>
+        {items.length === 0 ?
+          moreData === "no data" ? (
+            <div className="endcart">
+              <h1>TOTAL COST: {totalCost}</h1>
+              <h2>This is the end of the cart.</h2>
+            </div>
+          ) : (
+            <p>page {page} Loading...</p>
+          )
+          :<div className="endcart">
           <h1>TOTAL COST: {totalCost}</h1>
-          <h2> This is the end of the cart.</h2>
+          <h2>This is the end of the cart.</h2>
         </div>
-      ) : (
-        <p>page {page} Loading...</p>
-      )}
-
-      {!isLoading && !isScrolling && items.length === 0 && (
-        <p>No items in the order history.</p>
-      )}
+        }
+      </div>
     </div>
   );
 };

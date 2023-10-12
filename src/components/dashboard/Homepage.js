@@ -179,7 +179,7 @@ const Homepage = () => {
             price: "",
           });
           closeModal();
-          productGet()
+          productGet();
         } else {
           // Handle other status codes if needed
           toast.error(" failed");
@@ -206,8 +206,7 @@ const Homepage = () => {
     productGet(); // update all the carts data
   }, []);
 
-
-   const productGet=() => {
+  const productGet = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
       authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
@@ -249,8 +248,6 @@ const Homepage = () => {
       )
       .then((response) => {
         if (response.status === 200) {
-          toast.success("filter the data");
-
           setFilteredData(response.data.data);
         } else {
           toast.error("user not found");
@@ -292,8 +289,6 @@ const Homepage = () => {
         )
         .then((response) => {
           if (response.status === 200) {
-            toast.success("filterss the data");
-
             setFilteredData(response.data.data);
           } else {
             toast.error("user not found");
@@ -308,12 +303,9 @@ const Homepage = () => {
           headers: customHeaders,
         })
         .then((response) => {
-          if (response.status === 200) {
+         
             setAllData(response.data.data);
-          } else {
-            toast.error("user not found");
-          }
-        })
+          })
         .catch((error) => {
           console.error("Error fetching products:", error);
         });
@@ -499,8 +491,15 @@ const Homepage = () => {
               <div>
                 {selectedCategory ||
                 (selectedCategory && searchQuery) ||
-                (selectedCategory && sortByPrice)
-                  ? filteredData.map((item, index) => {
+                (selectedCategory && sortByPrice) ? (
+                  !filteredData.some((item) =>
+                    item.product_name
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
+                  ) ? (
+                    <p>No item is found.</p>
+                  ) : (
+                    filteredData.map((item, index) => {
                       // Find the corresponding category for the product
                       const productCategory = category.find(
                         (categoryItem) => item.c_id === categoryItem.cat_id
@@ -527,44 +526,49 @@ const Homepage = () => {
                         </div>
                       );
                     })
-                  : alldata.map((datas) => (
-                      <div key={datas.Name}>
-                        <h1>{datas.Name}</h1>
-                        <div>
-                          {datas.Products.map((product, index) => {
-                            // Find the corresponding category for the product
-                            const productCategory = category.find(
-                              (categoryItem) =>
-                                product.c_id === categoryItem.cat_id
-                            );
-
-                            return (
-                              <div className="card" key={index}>
-                                <img src={spice} className="img" alt="" />
-                                <div className="card-body">
-                                  <h5 className="card-title">
-                                    Category: {productCategory.Name}
-                                  </h5>
-                                  <h5 className="card-title">
-                                    Product Name: {product.product_name}
-                                  </h5>
-                                  <p className="card-title">
-                                    Description: {product.description}
-                                  </p>
-                                  <p className="card-title">
-                                    Price: {product.price}
-                                  </p>
-                                </div>
-                                <button onClick={() => handleBuyNow(product)}>
-                                  Buy now
-                                </button>
+                  )
+                ): alldata? (
+                  alldata.map((datas) => (
+                    <div key={datas.Name}>
+                      <h1>{datas.Name}</h1>
+                      <div>
+                        {datas.Products.map((product, index) => {
+                          // Find the corresponding category for the product
+                          const productCategory = category.find(
+                            (categoryItem) =>
+                              product.c_id === categoryItem.cat_id
+                          );
+                
+                          return (
+                            <div className="card" key={index}>
+                              <img src={spice} className="img" alt="" />
+                              <div className="card-body">
+                                <h5 className="card-title">
+                                  Category: {productCategory.Name}
+                                </h5>
+                                <h5 className="card-title">
+                                  Product Name: {product.product_name}
+                                </h5>
+                                <p className="card-title">
+                                  Description: {product.description}
+                                </p>
+                                <p className="card-title">
+                                  Price: {product.price}
+                                </p>
                               </div>
-                            );
-                          })}
-                        </div>
+                              <button onClick={() => handleBuyNow(product)}>
+                                Buy now
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
-              </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>No items found</p>
+                )}
+                </div>
             </Col>
           </Row>
           {isModalOpen && (

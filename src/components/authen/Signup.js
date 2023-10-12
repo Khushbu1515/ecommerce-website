@@ -34,18 +34,40 @@ const SignUp = () => {
     ) {
       // Set error messages htmlFor empty fields
       setErrors({
-        firstName: !formData.firstName ? "this is required field" : "",
-        lastName: !formData.lastName ? "this is required field" : "",
-        EmailAddress: !formData.EmailAddress ? "this is required field" : "",
-        password: !formData.password ? "this is required field" : "",
+        firstName: !formData.firstName ? "This is a required field" : "",
+        lastName: !formData.lastName ? "This is a required field" : "",
+        EmailAddress: !formData.EmailAddress ? "This is a required field" : "",
+        password: !formData.password ? "This is a required field" : "",
+      });
+      return; // Prevent form submission
+    } else if (
+      !/^[A-Za-z]+$/.test(formData.firstName) ||
+      !/^[A-Za-z]+$/.test(formData.lastName) ||
+      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formData.EmailAddress) ||
+      !/^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g.test(formData.password)
+    ) {
+      // Set error messages for invalid names
+      setErrors({
+        firstName: !/^[A-Za-z]+$/.test(formData.firstName)
+          ? "First name should only contain  desired letters"
+          : "",
+        lastName: !/^[A-Za-z]+$/.test(formData.lastName)
+          ? "Last name should only contain desired letters"
+          : "",
+        password: !/^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g.test(
+          formData.password
+        )
+          ? "Please fill the  strong password"
+          : "",
+        EmailAddress: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(
+          formData.EmailAddress
+        )
+          ? "Please fill desired email address"
+          : "",
       });
       return; // Prevent form submission
     }
-    // Validate required fields
-    else {
-      toast.success("submit the data succesfully");
-    }
-    // Send the form data to the backend using Axios
+
     axios
       .post("http://localhost:3300/user/signUp", formData)
       .then((response) => {
