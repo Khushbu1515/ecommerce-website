@@ -80,7 +80,7 @@ const removeCart = async function ({ product_id, user_id }) {
   }
 };
 
-const removeAll = async function ({ product_id, user_id }) {
+const removeAll = async function ({ product_id, user_id }) {  
   await db.Cart.destroy({
     where: {
       [Op.and]: [{ user_id: user_id }, { product_id: product_id }],

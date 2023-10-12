@@ -20,6 +20,7 @@ const insertOrder = async function ({ cartdata }) {
             user_id: obj.user_id,
             product_id: obj.product_id,
             total: obj.price,
+            cart_id : obj.cart_id
           },
         ]);
         return createdOrder;

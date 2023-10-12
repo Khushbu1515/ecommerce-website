@@ -95,12 +95,15 @@ async function deleteCart(req, res) {
 }
 
 //remove all cart
-const removeAllCart = async function ({ user_id }) {
-  await db.Cart.destroy({
-    where: { user_id: user_id },
-  });
-  return `All Products with Product Id ${user_id} has removed`;
-};
+async function removeAllCart(req,res){
+  const cart = await cartServices.removeAll({
+    user_id: req.userdata.user_id,
+    product_id: req.query.product_id
+  })
+  res.json({
+    message: `cart with ${req.query.product_id} deleted`,
+  })
+}
 
 async function deleteWholeCart(req,res){
   const cart = await cartServices.removeAllCart({

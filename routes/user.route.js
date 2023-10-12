@@ -6,7 +6,7 @@ const verifyToken = require('../middleware/verifyToken.middleware')
 const userProfileController = require('../controllers/user.profile.controller')
 
 router.get("/getuser",verifyToken.userProfile,userProfileController.getUser);
-router.put("/update",verifyToken.userProfile, update);
+router.put("/update",[verifyToken.userProfile,userMiddleware.validateUser,userMiddleware.validateEmail], update);
 router.get("/getAll",getAll);
 router.delete("/deleteUser",verifyToken.userProfile,deleteUser);
 

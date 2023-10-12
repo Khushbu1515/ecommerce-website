@@ -30,7 +30,7 @@ async function addOrderDetails({ user_id, cartData }) {
   await Promise.all(
     userOrder.map(async (obj) => {
       const order_id = obj.order_id;
-      const cartItem = cartData.find((item) => item.product_id === obj.product_id);
+      const cartItem = cartData.find((item) => item.cart_id === obj.cart_id);
 
       if (cartItem) {
         await db.OrderDetails.bulkCreate([

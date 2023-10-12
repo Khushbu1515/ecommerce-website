@@ -25,6 +25,9 @@ const Order = sequelize.define('Order',
         type: DataTypes.DATE, 
         allowNull: false,
         defaultValue: DataTypes.NOW
+    }, cart_id:{
+        type : DataTypes.INTEGER,
+        allowNull:true
     }
 },{
     timestamps:false,
