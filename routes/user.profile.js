@@ -9,7 +9,7 @@ const inventoryMiddleware = require('../middleware/inventory.middleware')
 
 router.get("/profile", userProfileMiddleware.userProfile, userProfileController.userProfile);
 router.get("/checkOut", [userProfileMiddleware.userProfile, 
-    checkoutMiddleware.checkOut], orderDetailsController.addOrderDetails);
+    checkoutMiddleware.checkOut,inventoryMiddleware.inventoryQuantity], orderDetailsController.addOrderDetails);
 
 
 module.exports = router;

@@ -61,7 +61,7 @@ OrderDetails.belongsTo(Product,{
   foreignKey: "product_id"
 })
 
-Product.hasMany(Inventory,{
+Product.hasOne(Inventory,{
   foreignKey: "product_id",
   onUpdate:"CASCADE",
   onUpdate: "CASCADE"
@@ -71,7 +71,7 @@ Inventory.belongsTo(Product,{
 });
 
 
-sequelize.sync({alter:true});
+sequelize.sync({alter:false});
     
 module.exports = {
   User,

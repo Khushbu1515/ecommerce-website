@@ -15,8 +15,10 @@ const cartListing = require("./routes/cartListing.route");
 const inventory = require("./routes/inventory.route");
 
 const cors = require("cors");
+const path = require("path");
+server.use("/upload", express.static(path.join(__dirname, "upload")));
 server.use(cors());
-server.use(express.json());
+server.use(express.json({ limit: "100mb" }));
 server.use(express.urlencoded({ extended: true }));
 
 server.use(

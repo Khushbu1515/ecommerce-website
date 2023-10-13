@@ -11,41 +11,37 @@ async function addToInventory({ product_id, quantity, price }) {
 }
 
 async function quantityDecrease({ cartData }) {
- 
-    const inventory= await Promise.all(
-       cartData.map(async (obj) => {
-        const [numUpdatedRows, updatedRows] = await db.Inventory.update(
-          {
-            quantity: db.sequelize.literal(`quantity - ${obj.quantity}`),
-            price: db.sequelize.literal(`price - ${obj.price}`)
+  const inventory = await Promise.all(
+    cartData.map(async (obj) => {
+      const [numUpdatedRows, updatedRows] = await db.Inventory.update(
+        {
+          quantity: db.sequelize.literal(`quantity - ${obj.quantity}`),
+          price: db.sequelize.literal(`price - ${obj.price}`),
+        },
+        {
+          where: {
+            [Op.and]: [
+              { product_id: obj.product_id },
+              db.sequelize.literal(`quantity>=${obj.quantity}`),
+            ],
           },
-          {
-            where: {
-              [Op.and]: [
-                { product_id: obj.product_id },
-                db.sequelize.literal(`quantity>=${obj.quantity}`),
-              ],
-            },
-          }
-        );
-          return(numUpdatedRows);
-      })
-      
-    );
-  return(inventory);
+        }
+      );
+      return numUpdatedRows;
+    })
+  );
+  return inventory;
 }
 
-async function validateQuantity({
-  product_id, quantity
-}){
+async function validateQuantity({ product_id, quantity }) {
   const inventory = await db.Inventory.findOne({
-    where : {
+    where: {
       [Op.and]: [
-        {product_id:product_id},
-        {quantity: db.sequelize.literal(`quantity>${quantity}`)}
-      ]
+        { product_id: product_id },
+        { quantity: db.sequelize.literal(`quantity>=${quantity}`) },
+      ],
     },
-    raw:true
+    raw: true,
   });
   // console.log(inventory);
   return inventory;
@@ -54,5 +50,5 @@ async function validateQuantity({
 module.exports = {
   addToInventory,
   quantityDecrease,
-  validateQuantity
+  validateQuantity,
 };

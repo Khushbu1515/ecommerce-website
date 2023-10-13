@@ -7,6 +7,10 @@ async function getAll({ whereOptions, orderOptions }) {
     include: [
       {
         model: db.Product,
+        include: {
+          model: db.Inventory,
+          attributes: ["quantity"],
+        },
         where: whereOptions,
         order: orderOptions,
       },
@@ -16,12 +20,19 @@ async function getAll({ whereOptions, orderOptions }) {
   return product;
 }
 
-async function insertProduct({ product_name, c_id, description, price }) {
+async function insertProduct({
+  product_name,
+  c_id,
+  description,
+  price,
+  imageUrl,
+}) {
   const product = await db.Product.create({
     product_name: product_name,
     c_id: c_id,
     description: description,
     price: price,
+    imageUrl: imageUrl,
   });
   return product;
 }
@@ -65,9 +76,13 @@ async function updateProduct({ id, product_name, description, price }) {
   return product;
 }
 
-async function findCategoryProduct({ cat_id, orderOptions, whereOptions }) {
+async function findCategoryProduct({  orderOptions, whereOptions }) {
   const { count, rows } = await db.Product.findAndCountAll({
-    where:whereOptions,
+    include:{
+      model : db.Inventory,
+      attributes: ['quantity']
+    } ,
+    where: whereOptions,
     order: orderOptions,
   });
   return { count, rows };
