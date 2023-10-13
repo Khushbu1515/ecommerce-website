@@ -140,7 +140,7 @@ export const Cart = () => {
           CartsUpdate();
         } else {
           // Handle other status codes if needed
-          toast.error("Failed to add to cart");
+          toast.error("out of stock");
         }
       })
       .catch((error) => {
@@ -269,7 +269,7 @@ export const Cart = () => {
         {Object.keys(product).length > 0 ? (
           <div className="cart">
             <div>
-              <img className="cart-item-image" src={spice} alt="" />
+              <img className="cart-item-image" src={product.imageUrl} alt="" />
             </div>
             <div className="cart-item-details">
               <p className="cart-category_name">

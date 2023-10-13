@@ -26,6 +26,8 @@ const Homepage = () => {
     product_name: "",
     description: "",
     price: "",
+    quantity: "",
+    image: "",
   });
   // State to track whether to show quantity controls
   const [errors, setErrors] = useState({
@@ -33,6 +35,8 @@ const Homepage = () => {
     product_name: "",
     description: "",
     price: "",
+    quantity: "",
+    image: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Initialize with false for not logged in
@@ -143,53 +147,77 @@ const Homepage = () => {
         product_name: !modalData.product_name ? "this is required field" : "",
         description: !modalData.description ? "this is required field" : "",
         price: !modalData.price ? "this is required field" : "",
+        quantity: !modalData.quantity ? "this is required field" : "",
+        image: !modalData.image ? "this is required field" : "",
       });
       return; // Prevent form submission
     }
     // Validate required fields
-    else {
-      toast.success("submit the data succesfully");
-    }
+
     const filteredCategories = category.find(
       (categories) => categories.Name === modalData.category
     );
 
     const catIds = filteredCategories.cat_id;
 
-    if (catIds) {
-      modalData.category = catIds;
-    }
-    const backEndProduct = {};
-    backEndProduct.c_id = modalData.category;
-    backEndProduct.product_name = modalData.product_name;
-    backEndProduct.price = modalData.price;
-    backEndProduct.description = modalData.description;
-    axios
-      .post("http://localhost:3300/product/add_product", backEndProduct)
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success("create product successfully");
+    modalData.category = catIds;
 
-          // Reset the form data to empty values
-          setModalData({
-            category: "",
+    // Convert the image to Base64 and then submit the form
+    const imageFile = modalData.image;
 
-            product_name: "",
-            description: "",
-            price: "",
+    if (imageFile) {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        // The event.target.result will contain the Base64 data URL
+        const base64DataUrl = event.target.result;
+
+        // Assign the Base64 data URL to your backEndProduct
+        const backEndProduct = {
+          c_id: modalData.category,
+          product_name: modalData.product_name,
+          price: modalData.price,
+          description: modalData.description,
+          quantity: modalData.quantity,
+          image: base64DataUrl,
+        };
+        axios
+          .post("http://localhost:3300/product/add_product", backEndProduct)
+          .then((response) => {
+            if (response.status === 200) {
+              toast.success("create product successfully");
+
+              // Reset the form data to empty values
+              setModalData({
+                category: "",
+
+                product_name: "",
+                description: "",
+                price: "",
+                quantity: "",
+                image: "",
+              });
+              closeModal();
+              productGet();
+            } else {
+              // Handle other status codes if needed
+              toast.error(" failed");
+            }
+          })
+          // Read the image file as a Data URL
+
+          .catch((error) => {
+            // Handle network errors or other errors
+            toast.error("failed");
+            console.error("Error:", error);
           });
-          closeModal();
-          productGet();
-        } else {
-          // Handle other status codes if needed
-          toast.error(" failed");
-        }
-      })
-      .catch((error) => {
-        // Handle network errors or other errors
-        toast.error("failed");
-        console.error("Error:", error);
-      });
+      };
+      // Read the image file as a Data URL
+      reader.readAsDataURL(imageFile);
+    } else {
+      // Handle the case where no image file is selected, if needed
+      toast.error("Please select an image for the product.");
+    }
   };
 
   const handlechange = (e) => {
@@ -197,10 +225,19 @@ const Homepage = () => {
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // reset the errors when we type
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
+  const handlequantitychange = (quantity) => {
+    const quan = parseInt(quantity);
+    setErrors((prevErrors) => ({ ...prevErrors, quantity: "" }));
+    setModalData((prevData) => ({ ...prevData, quantity: quan }));
+  };
   const handlepricechange = (price) => {
     const cost = parseInt(price);
     setErrors((prevErrors) => ({ ...prevErrors, price: "" }));
     setModalData((prevData) => ({ ...prevData, price: cost }));
+  };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setModalData((prevData) => ({ ...prevData, image: file }));
   };
   useEffect(() => {
     productGet(); // update all the carts data
@@ -303,9 +340,8 @@ const Homepage = () => {
           headers: customHeaders,
         })
         .then((response) => {
-         
-            setAllData(response.data.data);
-          })
+          setAllData(response.data.data);
+        })
         .catch((error) => {
           console.error("Error fetching products:", error);
         });
@@ -315,7 +351,7 @@ const Homepage = () => {
     e.preventDefault(); // Prevents the default form submission behavior
     handleSearch(); // Calls the search function when the form is submitted
   };
-
+  console.log(alldata, "allllll");
   return (
     <div>
       <div>
@@ -335,27 +371,26 @@ const Homepage = () => {
             </li>
           </ul>
           <div>
-            {isLoggedIn &&
-              product.length > 0 && ( // Check if cartlist is not empty
-                <div>
-                  <svg
-                    onClick={() => navigate(`/checkout`)}
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="25"
-                    height="50"
-                    fill="currentColor"
-                    className="bi bi-cart"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                  </svg>
-                  {cartlist && cartlist.length > 0 ? (
-                    <span>[{cartlist.length}]</span>
-                  ) : (
-                    <span>[0]</span>
-                  )}
-                </div>
-              )}
+            {isLoggedIn || product.length > 0 ? ( // Check if cartlist is not empty
+              <div>
+                <svg
+                  onClick={() => navigate(`/checkout`)}
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="50"
+                  fill="currentColor"
+                  className="bi bi-cart"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                </svg>
+                {cartlist && cartlist.length > 0 ? (
+                  <span>[{cartlist.length}]</span>
+                ) : (
+                  <span>[0]</span>
+                )}
+              </div>
+            ) : null}
           </div>
 
           {isLoggedIn && Object.keys(user).length > 0 ? (
@@ -429,13 +464,17 @@ const Homepage = () => {
         >
           <Row>
             <Col xs={6}>
-              <div className="button">
-                <Button
-                  className="product"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Create product
-                </Button>
+              <div>
+                {isLoggedIn && (
+                  <div className="button">
+                    <Button
+                      className="product"
+                      onClick={() => setIsModalOpen(true)}
+                    >
+                      Create product
+                    </Button>
+                  </div>
+                )}
               </div>
             </Col>
 
@@ -507,7 +546,7 @@ const Homepage = () => {
 
                       return (
                         <div className="card" key={index}>
-                          <img src={spice} className="img" alt="" />
+                          <img src={item.imageUrl} className="img" alt="" />
                           <div className="card-body">
                             <h5 className="card-title">
                               Category: {productCategory.Name}
@@ -520,14 +559,17 @@ const Homepage = () => {
                             </p>
                             <p className="card-title">Price: {item.price}</p>
                           </div>
-                          <button onClick={() => handleBuyNow(item)}>
-                            Buy now
-                          </button>
+                          <div className="inven">
+                            <button onClick={() => handleBuyNow(product)}>
+                              Buy now
+                            </button>
+                            <h1> quantity {item.quantity} are in stock</h1>
+                          </div>
                         </div>
                       );
                     })
                   )
-                ): alldata? (
+                ) : alldata ? (
                   alldata.map((datas) => (
                     <div key={datas.Name}>
                       <h1>{datas.Name}</h1>
@@ -538,10 +580,14 @@ const Homepage = () => {
                             (categoryItem) =>
                               product.c_id === categoryItem.cat_id
                           );
-                
+
                           return (
                             <div className="card" key={index}>
-                              <img src={spice} className="img" alt="" />
+                              <img
+                                src={product.imageUrl}
+                                className="img"
+                                alt=""
+                              />
                               <div className="card-body">
                                 <h5 className="card-title">
                                   Category: {productCategory.Name}
@@ -556,9 +602,25 @@ const Homepage = () => {
                                   Price: {product.price}
                                 </p>
                               </div>
-                              <button onClick={() => handleBuyNow(product)}>
-                                Buy now
-                              </button>
+                              <div className="inven">
+                                <button
+                                  onClick={() => {
+                                    if (product.Inventory.quantity > 0) {
+                                      handleBuyNow(product);
+                                    }
+                                  }}
+                                  disabled={product.Inventory.quantity === 0}
+                                  className={
+                                    product.Inventory.quantity === 0 ? "disabled-button" : ""
+                                  }
+                                >
+                                  Buy now
+                                </button>
+                                <h1>
+                                {product.Inventory.quantity === 0 ? "Out of Stock" : `${product.Inventory.quantity} items are in stock`}
+                              </h1>
+                              
+                              </div>
                             </div>
                           );
                         })}
@@ -568,7 +630,7 @@ const Homepage = () => {
                 ) : (
                   <p>No items found</p>
                 )}
-                </div>
+              </div>
             </Col>
           </Row>
           {isModalOpen && (
@@ -646,6 +708,29 @@ const Homepage = () => {
                       onChange={(e) => handlepricechange(e.target.value)}
                     />
                     <div className="validation">{errors.price}</div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="c_id">quantity:</label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="form-control"
+                      name="quantity:"
+                      value={modalData.quantity}
+                      onChange={(e) => handlequantitychange(e.target.value)}
+                    />
+                    <div className="validation">{errors.quantity}</div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="c_id"> image:</label>
+                    <input
+                      type="file"
+                      id="image"
+                      className="form-control"
+                      name=" image"
+                      onChange={handleImageChange}
+                    />
+                    <div className="validation">{errors.image}</div>
                   </div>
                   <br />
                 </form>
