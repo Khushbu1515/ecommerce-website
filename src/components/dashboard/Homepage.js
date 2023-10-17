@@ -20,6 +20,8 @@ const Homepage = () => {
   const [sortByPrice, setSortByPrice] = useState("");
   const [product, setProduct] = useState([]);
   const [category, setCategory] = useState([]);
+  const [profileImage, setProfileImage] = useState(null);
+
   const [inputValue, setInputValue] = useState("");
   const [modalData, setModalData] = useState({
     category: "",
@@ -219,7 +221,7 @@ const Homepage = () => {
       toast.error("Please select an image for the product.");
     }
   };
-
+ 
   const handlechange = (e) => {
     const { name, value } = e.target;
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // reset the errors when we type
@@ -351,7 +353,7 @@ const Homepage = () => {
     e.preventDefault(); // Prevents the default form submission behavior
     handleSearch(); // Calls the search function when the form is submitted
   };
-  console.log(alldata, "allllll");
+  
   return (
     <div>
       <div>
@@ -398,14 +400,12 @@ const Homepage = () => {
               {user ? (
                 // If a user exists, render the profile icon and logout button
                 <div className="profile-container">
-                  <input
-                    className="profileImage"
-                    type="text"
-                    value={`${user.firstName
-                      .charAt(0)
-                      .toUpperCase()} ${user.lastName.charAt(0).toUpperCase()}`}
-                    onChange={(e) => setInputValue(e.target.value)}
-                  />
+                <img
+                className="profileImage"
+                src={user.imageUrl} // Replace with the actual image URL property
+                alt="User Profile"
+              />
+                  
                   <p>{inputValue}</p>
                   <div className="profile-dialog">
                     <ul>
@@ -416,7 +416,9 @@ const Homepage = () => {
                       <li onClick={() => navigate("/orderhistory")}>
                         Orders Details
                       </li>
+                     
                       <li onClick={handleLogout}> Logout</li>
+                      
                     </ul>
                   </div>
                 </div>
@@ -611,15 +613,18 @@ const Homepage = () => {
                                   }}
                                   disabled={product.Inventory.quantity === 0}
                                   className={
-                                    product.Inventory.quantity === 0 ? "disabled-button" : ""
+                                    product.Inventory.quantity === 0
+                                      ? "disabled-button"
+                                      : ""
                                   }
                                 >
                                   Buy now
                                 </button>
                                 <h1>
-                                {product.Inventory.quantity === 0 ? "Out of Stock" : `${product.Inventory.quantity} items are in stock`}
-                              </h1>
-                              
+                                  {product.Inventory.quantity === 0
+                                    ? "Out of Stock"
+                                    : `${product.Inventory.quantity} items are in stock`}
+                                </h1>
                               </div>
                             </div>
                           );
@@ -727,7 +732,7 @@ const Homepage = () => {
                       type="file"
                       id="image"
                       className="form-control"
-                      name=" image"
+                      name="image"
                       onChange={handleImageChange}
                     />
                     <div className="validation">{errors.image}</div>

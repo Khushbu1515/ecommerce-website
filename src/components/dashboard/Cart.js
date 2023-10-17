@@ -136,16 +136,14 @@ export const Cart = () => {
       }) // Send the 'cart' object as JSON data
       .then((response) => {
         if (response.status === 200) {
-          toast.success("add the cart successfully");
+         toast.success(response.data.message);
           CartsUpdate();
-        } else {
-          // Handle other status codes if needed
-          toast.error("out of stock");
         }
+       
       })
       .catch((error) => {
         // Handle network errors or other errors
-        toast.error("please login the form");
+        toast.error(error.response.data.message);
         console.error("Error:", error);
       });
   };

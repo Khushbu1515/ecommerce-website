@@ -12,17 +12,23 @@ const SignUp = () => {
     lastName: "",
     EmailAddress: "",
     password: "",
+    image: "",
   });
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
     EmailAddress: "",
     password: "",
+    image: "",
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     setFormData({ ...formData, [name]: value });
+  };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prevData) => ({ ...prevData, image: file }));
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,7 +36,8 @@ const SignUp = () => {
       !formData.firstName ||
       !formData.lastName ||
       !formData.EmailAddress ||
-      !formData.password
+      !formData.password ||
+      !formData.image
     ) {
       // Set error messages htmlFor empty fields
       setErrors({
@@ -38,6 +45,7 @@ const SignUp = () => {
         lastName: !formData.lastName ? "This is a required field" : "",
         EmailAddress: !formData.EmailAddress ? "This is a required field" : "",
         password: !formData.password ? "This is a required field" : "",
+        image: !formData.image ? "This is a required field" : "",
       });
       return; // Prevent form submission
     } else if (
@@ -80,6 +88,7 @@ const SignUp = () => {
             lastName: "",
             EmailAddress: "",
             password: "",
+            image: "",
           });
         } else {
           // Handle other status codes if needed
@@ -210,6 +219,17 @@ const SignUp = () => {
                             </div>
 
                             <br />
+                            <div className="form-group">
+                              <label htmlFor="c_id"> Image:</label>
+                              <input
+                                type="file"
+                                id="image"
+                                className="form-control"
+                                name="image"
+                                onChange={handleImageChange}
+                              />
+                              <div className="validation">{errors.image}</div>
+                            </div>
                             <div className="d-flex align-items-center justify-content-center pb-4">
                               <button
                                 className="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"

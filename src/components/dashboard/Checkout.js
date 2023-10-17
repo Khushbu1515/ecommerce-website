@@ -288,7 +288,7 @@ const Checkout = () => {
             {carts.map((cartss, index) => (
               <div className="carts" key={index}>
                 <div>
-                  <img className="cart-item-images" src={spice} alt="" />
+                  <img className="cart-item-images" src={cartss.Product.imageUrl} alt="" />
                 </div>
                 <div className="cart-item-detailss">
                   {categories.map((categoryItems) => {

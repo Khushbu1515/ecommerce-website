@@ -103,7 +103,9 @@ const Orderhistory = () => {
                 </p>
                 <p className="cart-category_names">Sub total: {item.price}</p>
               </div>
+              <button style={{color:"darkblue",fontSize:"15px"}}  onClick={""}>Shipping Details</button>
             </div>
+        
           ))
         ) : (
           <p>No items are selected by the user</p>
