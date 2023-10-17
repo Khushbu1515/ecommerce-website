@@ -25,7 +25,7 @@ async function validateQuantity(req,res,next){
     })
 
     if( inventory == null || inventory == undefined || !inventory ){
-        res.json({
+        res.status(404).json({
             message:`Product Out Of Stock.`
         })
         return;

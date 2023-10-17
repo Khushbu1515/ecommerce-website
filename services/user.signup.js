@@ -1,12 +1,13 @@
 const db = require('../models/index')
 
-async function signUp({firstName, lastName, EmailAddress, userName, password}){
+async function signUp({firstName, lastName, EmailAddress, userName, password, imageUrl}){
     const user= await db.User.create({
         firstName: firstName,
         lastName: lastName,
         userName: userName,
         EmailAddress : EmailAddress,
-        password: password
+        password: password,
+        imageUrl:imageUrl
     },{
         raw: true
     });

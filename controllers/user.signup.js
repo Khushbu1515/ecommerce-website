@@ -12,7 +12,8 @@ async function signUp(req,res) {
         lastName: data.lastName,
         EmailAddress: data.EmailAddress,
         userName: data.firstName.concat(data.lastName),
-        password: req.body.password
+        password: req.body.password,
+        imageUrl:req.url
     })
     res.json({
         message: "User Signed Up",

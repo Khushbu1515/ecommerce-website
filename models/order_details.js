@@ -29,6 +29,9 @@ const OrderDetails = sequelize.define('Order_details',
     uuid:{
         type : DataTypes.UUID,
         allowNull : true
+    },
+    invoice: {
+        type: DataTypes.STRING
     }
 },{
     timestamps:false,

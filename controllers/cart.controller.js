@@ -40,7 +40,7 @@ async function addToCart(req, res) {
       user_id: userId,
       price: price,
     });
-    res.json({
+    res.status(200).json({
       message: " Added to Cart",
       data: cart,
     });

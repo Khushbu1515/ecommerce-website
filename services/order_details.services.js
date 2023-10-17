@@ -1,5 +1,5 @@
 const db = require("../models/index");
-const {v4 : uuidv4} = require('uuid')
+const { v4: uuidv4 } = require("uuid");
 
 const getOrderDetails = async function ({ uuid }) {
   const details = await db.OrderDetails.findAll({
@@ -11,11 +11,11 @@ const getOrderDetails = async function ({ uuid }) {
       },
     },
     where: {
-      uuid: uuid
+      uuid: uuid,
     },
   });
-  console.log("Db data",details);
-  return details; 
+  console.log("Db data", details);
+  return details;
 };
 
 async function addOrderDetails({ user_id, cartData }) {
@@ -26,7 +26,6 @@ async function addOrderDetails({ user_id, cartData }) {
   });
   const userOrder = Order.map((order) => order.toJSON());
   const uuid = uuidv4();
-
   await Promise.all(
     userOrder.map(async (obj) => {
       const order_id = obj.order_id;
@@ -39,16 +38,31 @@ async function addOrderDetails({ user_id, cartData }) {
             product_id: obj.product_id,
             price: obj.total,
             quantity: cartItem.quantity,
-            uuid : uuid
+            uuid: uuid,
           },
         ]);
       }
     })
   );
-  const orderDetails = await db.OrderDetails.findAll();
-  
-  // console.log(orderDetails);
-  return {orderDetails, uuid};
+
+  const orderDetails = await db.Product.findAll({
+    include: {
+      model: db.OrderDetails,
+      attributes: ["price", "quantity", "uuid"],
+      where: {
+        uuid: uuid,
+      },
+      include: {
+        model: db.Order,
+        attributes: ["order_id"],
+        include: {
+          model: db.User,
+          attributes: ["userName"],
+        },
+      },
+    },
+  });
+  return { orderDetails, uuid };
 }
 
 module.exports = {

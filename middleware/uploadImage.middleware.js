@@ -56,6 +56,11 @@ async function uploadImage(req, res, next) {
     }
 
     const data = req.body;
+    if(!data.image){
+      return res.status(404).json({
+        message:`Image is requireed to sign up`
+      })
+    }
     if (
       !data.product_name ||
       !data.c_id ||

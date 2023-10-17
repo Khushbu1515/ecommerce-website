@@ -25,17 +25,22 @@ async function update(req,res) {
     if(data.userName){
         updateOptions.userName = data.userName
     }
+    if(req.url){
+        updateOptions.imageUrl = req.url
+    }
     whereOptions.user_id = req.userdata.user_id
 
     const userUpdate = await userServices.updateUser({
-        updateOptions: updateOptions,
-        whereOptions : whereOptions
+       updateOptions: updateOptions,
+       whereOptions : whereOptions
     })
     res.json({
         message: `Details updated`,
-        updatedData: userUpdate
+        updatedData: userUpdate,
+        imageUrl: req.url ? req.url : null
     })
 };
+
 
 async function deleteUser(req,res){
     const data = req.userdata;

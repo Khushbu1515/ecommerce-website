@@ -27,6 +27,9 @@ const User = sequelize.define(
         password: {
             type : DataTypes.STRING(50),
             allowNull: false
+        },
+        imageUrl:{
+            type: DataTypes.STRING
         }
        
     }, {

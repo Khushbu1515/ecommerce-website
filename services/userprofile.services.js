@@ -40,11 +40,11 @@ async function userProfile({ user_id, index, size }) {
   console.log(orderIds);
 
   const OrderDetails = await db.OrderDetails.findAll({
-    attributes: [ "product_id","order_id", "price", "quantity"],
+    attributes: [ "product_id","order_id", "price", "quantity", "invoice"],
     include: [
       {
         model: db.Product,
-        attributes: ["product_id","product_name", "description","c_id"],
+        attributes: ["product_id","product_name", "description","c_id","imageUrl"],
         include: [
           {
             model: db.Category,
