@@ -68,14 +68,11 @@ const Login = () => {
               });
               
               navigate("/");
-            } else {
-              // Handle other status codes if needed
-              toast.error("signup failed");
-            }
+            } 
           })
           .catch((error) => {
             // Handle network errors or other errors
-            toast.error("not logined")
+            toast.error(error.response.data.message)
             console.log("Error:", error);
           }))
       : (toast.error("please first signup the form"))

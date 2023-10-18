@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import ecomm from "../assets/ecomm.png";
-import spice from "../assets/spice.jpeg";
+
 import { useNavigate } from "react-router-dom";
 import "./file.css";
 
@@ -14,9 +14,24 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [buttonText, setButtonText] = useState("Checkout");
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState({});
-  const [inputValue, setInputValue] = useState("");
+  const [modalData, setModalData] = useState({
+    name: "",
+    address: "",
+    state: "",
+    city: "",
+    zipCode: "",
+    country: "",
+  });
+  const [errors, setErrors] = useState({
+    name: "",
+    address: "",
+    state: "",
+    city: "",
+    zipCode: "",
+    country: "",
+  });
   const totalCost = carts.reduce((total, cart) => total + cart.price, 0);
   useEffect(() => {
     getListCarts(); // access all the carts data
@@ -34,15 +49,12 @@ const Checkout = () => {
       .then((response) => {
         if (response.status === 200) {
           SetCarts(response.data.cartListing);
-        } else {
-          // Handle other status codes if needed
-          toast.error("Failed to fetch categories");
         }
       })
       .catch((error) => {
         // Handle network errors or other errors
         console.error("Error:", error);
-        toast.error("Failed to fetch categories");
+        toast.error(error.response.data.message);
       });
   };
 
@@ -54,17 +66,15 @@ const Checkout = () => {
           // Assuming your API returns an array of categories
 
           setCategories(response.data.data);
-        } else {
-          // Handle other status codes if needed
-          toast.error("Failed to fetch categories");
         }
       })
       .catch((error) => {
         // Handle network errors or other errors
+        toast.error(error.response.data.message);
         console.error("Error:", error);
       });
   }, []);
- 
+
   const handledeleteall = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -80,12 +90,10 @@ const Checkout = () => {
         if (cartResponse.status === 200) {
           // Both product and cart deletion were successful
           toast.success("Delete  all the order successfully");
-        } else {
-          toast.error("Failed to delete all cart");
         }
       })
       .catch((error) => {
-        toast.error("Faileddd all to delete");
+        toast.error(error.response.data.message);
         console.error("Error:", error);
       });
   };
@@ -105,17 +113,14 @@ const Checkout = () => {
           if (response.status === 200) {
             toast.success("placed the order successfully");
             // You can handle further actions here, such as updating the cart state
-            const uuids=response.data.uuid;
-            
+            const uuids = response.data.uuid;
+
             navigate(`/orderplaced/${uuids}`);
-          } else {
-            // Handle other status codes if needed
-            toast.error("Failed to add to cart");
           }
         })
         .catch((error) => {
           // Handle network errors or other errors
-          toast.error("Faileddddd to placed order");
+          toast.error(error.response.data.message);
           console.error("Error:", error);
         });
     }
@@ -137,11 +142,93 @@ const Checkout = () => {
           // Both product and cart deletion were successful
           toast.success("Delete the order successfully");
           getListCarts();
-        } else {
-          toast.error("Failed to delete cart");
         }
       })
       .catch((error) => {
+        toast.error(error.response.data.message);
+        console.error("Error:", error);
+      });
+  };
+
+  const handleSaveProduct = (event) => {
+    event.preventDefault();
+
+    if (
+      !modalData.name ||
+      !modalData.address ||
+      !modalData.state ||
+      !modalData.city ||
+      !modalData.zipCode ||
+      !modalData.country
+    ) {
+      // Set error messages for empty fields
+      setErrors({
+        name: !modalData.name ? "this is required field" : "",
+        address: !modalData.address ? "this is required field" : "",
+        state: !modalData.state ? "this is required field" : "",
+        city: !modalData.city ? "this is required field" : "",
+        zipCode: !modalData.zipCode ? "this is required field" : "",
+        country: !modalData.country ? "this is required field" : "",
+      });
+      return; // Prevent form submission
+    }
+    // Validate required fields
+    else if (
+      !/^[A-Za-z]+$/.test(modalData.name) ||
+      !/^[A-Za-z]+$/.test(modalData.address) ||
+      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.state) ||
+      !/^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g.test(modalData.city) ||
+      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.zipCode) ||
+      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.country)
+    ) {
+      // Set error messages for invalid names
+      setErrors({
+        name: !/^[A-Za-z]+$/.test(modalData.name)
+          ? "First name should only contain  desired letters"
+          : "",
+        address: !/^[A-Za-z]+$/.test(modalData.address)
+          ? "address should only contain desired letters"
+          : "",
+        state: !/^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g.test(
+          modalData.state
+        )
+          ? "Please fill the correct state"
+          : "",
+        city: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.city)
+          ? "Please fill desired name"
+          : "",
+        zipCode: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(
+          modalData.zipCode
+        )
+          ? "Please fill  the correct zipcode"
+          : "",
+      });
+      return; // Prevent form submission
+    }
+
+    axios
+      .post("http://localhost:3300/product/add_product", modalData)
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success("create product successfully");
+
+          // Reset the form data to empty values
+          setModalData({
+            name: "",
+            address: "",
+            state: "",
+            city: "",
+            zipCode: "",
+            country: "",
+          });
+          closeModal();
+        }
+      })
+      // Read the image file as a Data URL
+
+      .catch((error) => {
+        // Handle network errors or other errors
+        toast.error(error.response.data.message);
         console.error("Error:", error);
       });
   };
@@ -159,11 +246,10 @@ const Checkout = () => {
       .then((response) => {
         if (response.status === 200) {
           setUser(response.data.profile);
-        } else {
-          toast.error("user not found");
         }
       })
       .catch((error) => {
+        toast.error(error.response.data.message);
         console.error("Error fetching products:", error);
       });
   }, []);
@@ -176,6 +262,19 @@ const Checkout = () => {
 
     setIsLoggedIn(false); // Set to false when the user logs out
     localStorage.removeItem("JWTtoken");
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  const handlechange = (e) => {
+    const { name, value } = e.target;
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // reset the errors when we type
+    setModalData((prevData) => ({ ...prevData, [name]: value }));
+  };
+  const handlezipchange = (zipCode) => {
+    const zip = parseInt(zipCode);
+    setErrors((prevErrors) => ({ ...prevErrors, zipCode: "" }));
+    setModalData((prevData) => ({ ...prevData, zipCode: zip }));
   };
   return (
     <div>
@@ -218,17 +317,11 @@ const Checkout = () => {
                 {user ? (
                   // If a user exists, render the profile icon and logout button
                   <div className="profile-container">
-                    <input
+                    <img
                       className="profileImage"
-                      type="text"
-                      value={`${user.firstName
-                        .charAt(0)
-                        .toUpperCase()} ${user.lastName
-                        .charAt(0)
-                        .toUpperCase()}`}
-                      onChange={(e) => setInputValue(e.target.value)}
+                      src={user.imageUrl} // Replace with the actual image URL property
+                      alt="User Profile"
                     />
-                    <p>{inputValue}</p>
                     <div className="profile-dialog">
                       <ul>
                         <li onClick={() => navigate(`/update/${user.user_id}`)}>
@@ -278,17 +371,21 @@ const Checkout = () => {
       </div>
 
       <div className="cart-items">
-      {carts.length > 0 && (
-        <button className="allitem" onClick={handledeleteall}>
-          Clear items
-        </button>
-      )}
+        {carts.length > 0 && (
+          <button className="allitem" onClick={handledeleteall}>
+            Clear items
+          </button>
+        )}
         {carts && carts.length > 0 ? (
           <div>
             {carts.map((cartss, index) => (
               <div className="carts" key={index}>
                 <div>
-                  <img className="cart-item-images" src={cartss.Product.imageUrl} alt="" />
+                  <img
+                    className="cart-item-images"
+                    src={cartss.Product.imageUrl}
+                    alt=""
+                  />
                 </div>
                 <div className="cart-item-detailss">
                   {categories.map((categoryItems) => {
@@ -364,6 +461,15 @@ const Checkout = () => {
             <button onClick={handleCheckout}>{buttonText}</button>
             {showPaymentOptions && (
               <div className="payment">
+                <p>Shipping details:</p>
+                <label>
+                  <button
+                    className="product"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    create shipping
+                  </button>
+                </label>
                 <p>Choose Payment Method:</p>
                 <label>
                   <input
@@ -378,6 +484,103 @@ const Checkout = () => {
           </div>
         ) : (
           <p>Your cart is empty.</p>
+        )}
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2 className="title">Shipping details</h2>
+              <form>
+                <div className="form-group">
+                  <label htmlFor="product_name">User name:</label>
+                  <input
+                    type="text"
+                    id="product_name"
+                    className="form-control"
+                    name="name"
+                    value={modalData.name}
+                    onChange={handlechange}
+                  />
+                  <div className="validation">{errors.name}</div>
+                </div>
+                <br />
+
+                <div className="form-group">
+                  <label htmlFor="c_id">Address:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="address"
+                    value={modalData.address}
+                    onChange={handlechange}
+                  />
+                  <div className="validation">{errors.address}</div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="c_id">state:</label>
+                  <input
+                    type="text"
+                    id="state"
+                    className="form-control"
+                    name="state"
+                    value={modalData.state}
+                    onChange={handlechange}
+                  />
+                  <div className="validation">{errors.address}</div>
+                </div>
+
+                <br />
+                <div className="form-group">
+                  <label htmlFor="c_id">city:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="city"
+                    value={modalData.city}
+                    onChange={handlechange}
+                  />
+                  <div className="validation">{errors.city}</div>
+                </div>
+
+                <br />
+                <div className="form-group">
+                  <label htmlFor="c_id">zipCode:</label>
+                  <input
+                    type="number"
+                    id="state"
+                    className="form-control"
+                    name="zipCode"
+                    value={modalData.zipCode}
+                    onChange={(e) => handlezipchange(e.target.value)}
+                  />
+                  <div className="validation">{errors.zipCode}</div>
+                </div>
+
+                <br />
+                <div className="form-group">
+                  <label htmlFor="c_id">Country:</label>
+                  <input
+                    type="text"
+                    id="state"
+                    className="form-control"
+                    name="country"
+                    value={modalData.country}
+                    onChange={handlechange}
+                  />
+                  <div className="validation">{errors.country}</div>
+                </div>
+
+                <br />
+              </form>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={closeModal}>
+                  Close
+                </button>
+                <button className="btn btn-primary" onClick={handleSaveProduct}>
+                  Create
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

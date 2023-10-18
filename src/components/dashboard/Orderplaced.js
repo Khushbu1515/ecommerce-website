@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import spice from "../assets/spice.jpeg";
 import { toast } from "react-toastify";
 import "./file.css";
 
 const Orderplaced = () => {
   const [items, setItems] = useState([]);
- const {uuids}=useParams();
+  const { uuids } = useParams();
   useEffect(() => {
     fetchData();
   }, []);
-   // initially fetch the data with unique uuid
+  // initially fetch the data with unique uuid
   const fetchData = () => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -25,19 +25,17 @@ const Orderplaced = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          
-          
           setItems(response.data.data);
         }
       })
       .catch((error) => {
-        toast.error("Failed to fetch orderss");
+        toast.error(error.response.data.message);
 
         console.error("Error:", error);
       });
   };
-  
-   const totalCost = items.reduce((total, item) => total + item.price, 0);
+
+  const totalCost = items.reduce((total, item) => total + item.price, 0);
 
   return (
     <div>
@@ -57,7 +55,7 @@ const Orderplaced = () => {
           items.map((item, index) => (
             <div className="carts" key={index}>
               <div>
-                <img className="cart-item-images" src={spice} alt="" />
+                <img className="cart-item-images" src={item.Product.imageUrl} alt="" />
               </div>
               <div className="cart-item-detailss">
                 <p className="cart-category_names">
@@ -73,7 +71,7 @@ const Orderplaced = () => {
                   {" "}
                   Product Name: {item.Product.product_name}
                 </p>
-               
+
                 <p className="cart-category_names">
                   {" "}
                   Quantity: {item.quantity}

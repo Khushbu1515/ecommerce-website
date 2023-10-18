@@ -8,18 +8,20 @@ import "../dashboard/file.css";
 const Updateprofile = () => {
   const { user_id } = useParams();
   const navigate = useNavigate();
-
+  const [image, setImage] = useState("")
   const [formDatas, setFormDatas] = useState({
     firstName: "",
     lastName: "",
     userName: "",
     EmailAddress: "",
+    images: "",
   });
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
     userName: "",
     EmailAddress: "",
+    images: "",
   });
   // initially call the api to fetch the user details
   useEffect(() => {
@@ -34,12 +36,17 @@ const Updateprofile = () => {
       })
       .then((response) => {
         if (response.status === 200) {
+        console.log(response)
           setFormDatas(response.data.profile);
-        } else {
-          toast.error("Category not found");
+          // setFormDatas({
+          //   ...formDatas,
+          //   images: response.data.profile.imageUrl
+          // });
+          
         }
       })
       .catch((error) => {
+        toast.error(error.response.data.message);
         console.error("Error fetching products:", error);
       });
   }, [user_id]);
@@ -58,7 +65,8 @@ const Updateprofile = () => {
       !formDatas.firstName ||
       !formDatas.lastName ||
       !formDatas.userName ||
-      !formDatas.EmailAddress
+      !formDatas.EmailAddress ||
+      !formDatas.images
     ) {
       // Set error messages htmlFor empty fields
       setErrors({
@@ -66,10 +74,14 @@ const Updateprofile = () => {
         lastName: !formDatas.lastName ? "this is required field" : "",
         userName: !formDatas.userName ? "this is required field" : "",
         EmailAddress: !formDatas.EmailAddress ? "this is required field" : "",
+        images: !formDatas.images ? "this is required field" : "",
       });
       return; // Prevent form submission
-    }
-    else if (!/^[A-Za-z]+$/.test(formDatas.firstName) || !/^[A-Za-z]+$/.test(formDatas.lastName)||!/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formDatas.EmailAddress)) {
+    } else if (
+      !/^[A-Za-z]+$/.test(formDatas.firstName) ||
+      !/^[A-Za-z]+$/.test(formDatas.lastName) ||
+      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formDatas.EmailAddress)
+    ) {
       // Set error messages for invalid names
       setErrors({
         firstName: !/^[A-Za-z]+$/.test(formDatas.firstName)
@@ -79,38 +91,56 @@ const Updateprofile = () => {
           ? "Last name should only contain desired letters"
           : "",
         userName: !formDatas.userName ? "Please fill in your username" : "",
-        EmailAddress: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formDatas.EmailAddress)
+        EmailAddress: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(
+          formDatas.EmailAddress
+        )
           ? "Please fill desired email address"
           : "",
       });
       return; // Prevent form submission
     }
-    
-    
-    
+    // Convert the image to Base64 and then submit the form
+    const imageFile = formDatas.images;
+    if (imageFile) {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        // The event.target.result will contain the Base64 data URL
+        const base64DataUrl = event.target.result;
+
+        // Assign the Base64 data URL to your backEndProduct
+        const updateProduct = {
+          firstName: formDatas.firstName,
+          lastName: formDatas.lastName,
+          EmailAddress: formDatas.EmailAddress,
+          password: formDatas.password,
+          images: base64DataUrl,
+        };
+        axios
+          .post("http://localhost:3300/user/update", updateProduct)
+
+          .then((response) => {
+            if (response.status === 200) {
+              setImage(response)
+              navigate("/");
+            }
+          })
+          .catch((error) => {
+            toast.error(error.response.data.message);
+            console.error("Error fetching products:", error);
+          });
+      };
+      // Read the image file as a Data URL
+
+      // Read the image file as a Data URL
+      reader.readAsDataURL(imageFile);
+    } else {
+      // Handle the case where no image file is selected, if needed
+      toast.error("Please select an image for the product.");
+    }
     // update the data as we click on the button
-    const jwtToken = localStorage.getItem("JWTtoken");
-    const customHeaders = {
-      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
-      "Content-Type": "application/json", // Specify the content type if needed
-    };
-    axios
-      .put("http://localhost:3300/user/update", formDatas, {
-        headers: customHeaders, // pass the authorization to update the data
-      })
-      .then((response) => {
-        if (response.status === 200) {
-         
-          navigate("/");
-        } else {
-          toast.error(" not updated");
-        }
-      })
-      .catch((error) => {
-        toast.error(" not updated enter valid data");
-        console.error("Error fetching products:", error);
-      });
   };
+
   // function for delete one item
   const handledelete = () => {
     const jwtToken = localStorage.getItem("JWTtoken"); // delete the user when we click on the button
@@ -135,7 +165,11 @@ const Updateprofile = () => {
         console.error("Error fetching products:", error);
       });
   };
-
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setErrors((prevErrors) => ({ ...prevErrors, images: "" }));
+    setFormDatas((prevData) => ({ ...prevData, images: file }));
+  };
   return (
     <div>
       <section className="gradient-form">
@@ -222,8 +256,21 @@ const Updateprofile = () => {
                             value={formDatas.EmailAddress}
                             onChange={handleChange}
                           />
-                          <div className="validation">{errors.EmailAddress}</div>
+                          <div className="validation">
+                            {errors.EmailAddress}
+                          </div>
                         </div>
+                        <div className="form-group">
+                        <label htmlFor="images"> Image:</label>
+                        <input
+                          type="file"
+                          id="images"
+                          className="form-control"
+                          name="images"
+                          onChange={handleImageChange}
+                        />
+                        <div className="validation">{errors.images}</div>
+                      </div>
 
                         <br />
                         <div className="d-flex align-items-center justify-content-center pb-4">

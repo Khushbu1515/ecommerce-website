@@ -204,17 +204,11 @@ export const Cart = () => {
                 {user ? (
                   // If a user exists, render the profile icon and logout button
                   <div className="profile-container">
-                    <input
-                      className="profileImage"
-                      type="text"
-                      value={`${user.firstName
-                        .charAt(0)
-                        .toUpperCase()} ${user.lastName
-                        .charAt(0)
-                        .toUpperCase()}`}
-                      onChange={(e) => setInputValue(e.target.value)}
-                    />
-                    <p>{inputValue}</p>
+                  <img
+                  className="profileImage"
+                  src={user.imageUrl} // Replace with the actual image URL property
+                  alt="User Profile"
+                />
                     <div className="profile-dialog">
                       <ul>
                         <li onClick={() => navigate(`/update/${user.user_id}`)}>

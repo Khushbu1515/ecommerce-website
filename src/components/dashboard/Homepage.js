@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import ecomm from "../assets/ecomm.png";
-import spice from "../assets/spice.jpeg";
+
 
 const Homepage = () => {
   const navigate = useNavigate();
@@ -20,9 +20,8 @@ const Homepage = () => {
   const [sortByPrice, setSortByPrice] = useState("");
   const [product, setProduct] = useState([]);
   const [category, setCategory] = useState([]);
-  const [profileImage, setProfileImage] = useState(null);
-
-  const [inputValue, setInputValue] = useState("");
+  
+ 
   const [modalData, setModalData] = useState({
     category: "",
     product_name: "",
@@ -67,11 +66,10 @@ const Homepage = () => {
       .then((response) => {
         if (response.status === 200) {
           setCategory(response.data.data);
-        } else {
-          toast.error("Category not found");
-        }
+        } 
       })
       .catch((error) => {
+        toast.error(error.response.data.message)
         console.error("Error fetching products:", error);
       });
   }, []);
@@ -83,11 +81,10 @@ const Homepage = () => {
         if (response.status === 200) {
           setProduct(response.data.data);
           setIsLoggedIn(true);
-        } else {
-          toast.error("product not found");
-        }
+        } 
       })
       .catch((error) => {
+        toast.error(error.response.data.message)
         console.error("Error fetching products:", error);
       });
   }, []);
@@ -105,12 +102,10 @@ const Homepage = () => {
         if (response.status === 200) {
           setCartList(response.data.data);
           setIsLoggedIn(true);
-        } else {
-          // Handle other status codes if needed
-          toast.error("Failed to fetch categories");
-        }
+        } 
       })
       .catch((error) => {
+        toast.error(error.response.data.message)
         // Handle network errors or other errors
         console.error("Error:", error);
       });
@@ -130,11 +125,10 @@ const Homepage = () => {
         if (response.status === 200) {
           setUser(response.data.profile);
           setIsLoggedIn(true);
-        } else {
-          toast.error("user not found");
-        }
+        } 
       })
       .catch((error) => {
+        toast.error(error.response.data.message)
         console.error("Error fetching products:", error);
       });
   }, []);
@@ -201,16 +195,13 @@ const Homepage = () => {
               });
               closeModal();
               productGet();
-            } else {
-              // Handle other status codes if needed
-              toast.error(" failed");
-            }
+            } 
           })
           // Read the image file as a Data URL
 
           .catch((error) => {
             // Handle network errors or other errors
-            toast.error("failed");
+            toast.error(error.response.data.message);
             console.error("Error:", error);
           });
       };
@@ -258,11 +249,10 @@ const Homepage = () => {
       .then((response) => {
         if (response.status === 200) {
           setAllData(response.data.data);
-        } else {
-          toast.error("user not found");
         }
       })
       .catch((error) => {
+        toast.error(error.response.data.message)
         console.error("Error fetching products:", error);
       });
   };
@@ -288,11 +278,10 @@ const Homepage = () => {
       .then((response) => {
         if (response.status === 200) {
           setFilteredData(response.data.data);
-        } else {
-          toast.error("user not found");
-        }
+        } 
       })
       .catch((error) => {
+        toast.error(error.response.data.message)
         console.error("Error fetching products:", error);
       });
   };
@@ -329,11 +318,10 @@ const Homepage = () => {
         .then((response) => {
           if (response.status === 200) {
             setFilteredData(response.data.data);
-          } else {
-            toast.error("user not found");
-          }
+          } 
         })
         .catch((error) => {
+          toast.error(error.response.data.message)
           console.error("Error fetching products:", error);
         });
     } else {
@@ -345,6 +333,7 @@ const Homepage = () => {
           setAllData(response.data.data);
         })
         .catch((error) => {
+          toast.error(error.response.data.message)
           console.error("Error fetching products:", error);
         });
     }
@@ -406,7 +395,7 @@ const Homepage = () => {
                 alt="User Profile"
               />
                   
-                  <p>{inputValue}</p>
+                  
                   <div className="profile-dialog">
                     <ul>
                       <li onClick={() => navigate(`/update/${user.user_id}`)}>

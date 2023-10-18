@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import spice from "../assets/spice.jpeg";
+import fileSaver from 'file-saver';
 import { toast } from "react-toastify";
 //import Skeleton from "./Skeleton";
 import "./file.css";
@@ -50,7 +50,7 @@ const Orderhistory = () => {
       })
       .catch((error) => {
         // Handle network errors or other errors
-        toast.error("Faileddddd to add to cart");
+        toast.error(error.response.data.message);
         setIsLoading(false);
         console.error("Error:", error);
       });
@@ -77,6 +77,18 @@ const Orderhistory = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [page]);
+  const handlebilling = (item) => {
+    // Extract the PDF data from item.invoice
+    const pdfData = item.invoice;
+   console.log(pdfData)
+    // Specify a file name for the downloaded PDF
+    const fileName = 'Invoice.pdf';
+  
+    // Use file-saver to save the PDF data as a file
+   
+    fileSaver.saveAs(pdfData, fileName);
+  };
+  
 
   return (
     <div>
@@ -89,7 +101,7 @@ const Orderhistory = () => {
           items.map((item, index) => (
             <div className="carts" key={index}>
               <div>
-                <img className="cart-item-images" src={spice} alt="" />
+                <img className="cart-item-images" src={item.Product.imageUrl} alt="" />
               </div>
               <div className="cart-item-detailss">
                 <p className="cart-category_names">Order id: {item.order_id}</p>
@@ -103,7 +115,7 @@ const Orderhistory = () => {
                 </p>
                 <p className="cart-category_names">Sub total: {item.price}</p>
               </div>
-              <button style={{color:"darkblue",fontSize:"15px"}}  onClick={""}>Shipping Details</button>
+              <button style={{color:"darkblue",fontSize:"15px"}}  onClick={()=>handlebilling(item)}>billing Details</button>
             </div>
         
           ))
@@ -113,7 +125,7 @@ const Orderhistory = () => {
       </div>
 
       <div>
-        {items.length === 0 ?
+        {isLoading||items.length === 0 ?
           moreData === "no data" ? (
             <div className="endcart">
               <h1>TOTAL COST: {totalCost}</h1>

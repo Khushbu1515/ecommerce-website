@@ -12,14 +12,14 @@ const SignUp = () => {
     lastName: "",
     EmailAddress: "",
     password: "",
-    image: "",
+    images: "",
   });
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
     EmailAddress: "",
     password: "",
-    image: "",
+    images: "",
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +28,8 @@ const SignUp = () => {
   };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setFormData((prevData) => ({ ...prevData, image: file }));
+    setErrors((prevErrors) => ({ ...prevErrors, images: "" }));
+    setFormData((prevData) => ({ ...prevData, images: file }));
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -37,7 +38,7 @@ const SignUp = () => {
       !formData.lastName ||
       !formData.EmailAddress ||
       !formData.password ||
-      !formData.image
+      !formData.images
     ) {
       // Set error messages htmlFor empty fields
       setErrors({
@@ -45,7 +46,7 @@ const SignUp = () => {
         lastName: !formData.lastName ? "This is a required field" : "",
         EmailAddress: !formData.EmailAddress ? "This is a required field" : "",
         password: !formData.password ? "This is a required field" : "",
-        image: !formData.image ? "This is a required field" : "",
+        images: !formData.images ? "This is a required field" : "",
       });
       return; // Prevent form submission
     } else if (
@@ -75,31 +76,58 @@ const SignUp = () => {
       });
       return; // Prevent form submission
     }
+   
 
-    axios
-      .post("http://localhost:3300/user/signUp", formData)
-      .then((response) => {
-        if (response.status === 200) {
-          // You can show a success message to the user
-          toast.success("Signup successful");
-          // Reset the form data to empty values
-          setFormData({
-            firstName: "",
-            lastName: "",
-            EmailAddress: "",
-            password: "",
-            image: "",
+    // Convert the image to Base64 and then submit the form
+    const imageFile = formData.images;
+
+    if (imageFile) {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        // The event.target.result will contain the Base64 data URL
+        const base64DataUrl = event.target.result;
+
+        // Assign the Base64 data URL to your backEndProduct
+        const signupProduct = {
+        
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          EmailAddress: formData.EmailAddress,
+          password: formData.password,
+          images: base64DataUrl,
+        };
+        axios
+          .post("http://localhost:3300/user/signUp", signupProduct)
+          .then((response) => {
+            if (response.status === 200) {
+              toast.success("create product successfully");
+
+              // Reset the form data to empty values
+              setFormData({
+                firstName: "",
+                lastName: "",
+                EmailAddress: "",
+                password: "",
+                images: "",
+              });
+              
+            } 
+          })
+          // Read the image file as a Data URL
+
+          .catch((error) => {
+            // Handle network errors or other errors
+            toast.error(error.response.data.message);
+            console.error("Error:", error);
           });
-        } else {
-          // Handle other status codes if needed
-          toast.error("Signup failed");
-        }
-      })
-      .catch((error) => {
-        // Handle network errors or other errors
-        console.error("Error:", error);
-        alert("Signup failed");
-      });
+      };
+      // Read the image file as a Data URL
+      reader.readAsDataURL(imageFile);
+    } else {
+      // Handle the case where no image file is selected, if needed
+      toast.error("Please select an image for the product.");
+    }
   };
 
   return (
@@ -223,12 +251,12 @@ const SignUp = () => {
                               <label htmlFor="c_id"> Image:</label>
                               <input
                                 type="file"
-                                id="image"
+                                id="images"
                                 className="form-control"
-                                name="image"
+                                name="images"
                                 onChange={handleImageChange}
                               />
-                              <div className="validation">{errors.image}</div>
+                              <div className="validation">{errors.images}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-center pb-4">
                               <button
