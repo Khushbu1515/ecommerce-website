@@ -1,7 +1,7 @@
 const sequelize = require("../db/database");
-const { DataTypes, UUID } = require("sequelize");
-const OrderDetails = sequelize.define(
-  "Order_details",
+const { DataTypes } = require("sequelize");
+const address = sequelize.define(
+  "Address",
   {
     id: {
       type: DataTypes.INTEGER(10),
@@ -10,32 +10,29 @@ const OrderDetails = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    order_id: {
+    user_id: {
       type: DataTypes.INTEGER(10),
       allowNull: false,
     },
-    product_id: {
-      type: DataTypes.INTEGER(10),
+    address: {
+      type: DataTypes.STRING(20),
       allowNull: false,
     },
-    price: {
-      type: DataTypes.INTEGER(20),
-      allowNull: false,
-    },
-    quantity: {
+    zip_code: {
       type: DataTypes.INTEGER(20),
       allowNull: false,
       defaultValue: "1",
     },
-    uuid: {
-      type: UUID,
-      allowNull: true,
+    city: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
     },
-    invoice: {
+    state: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+    },
+    country: {
       type: DataTypes.STRING,
-    },
-    shipped_to: {
-      type: DataTypes.INTEGER,
     },
   },
   {
@@ -43,5 +40,5 @@ const OrderDetails = sequelize.define(
     id: false,
   }
 );
- 
-module.exports = OrderDetails;
+
+module.exports = address;

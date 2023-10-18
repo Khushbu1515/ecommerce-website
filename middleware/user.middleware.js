@@ -3,7 +3,7 @@ const userServices = require("../services/user.services");
 const validateUser = async function (req, res, next) {
   const data = req.body;
   const regex = /^[A-Za-z\s'\-]+$/;
-  console.log("Inside validate user", data);
+  // console.log("Inside validate user", data);
   if (data.firstName) {
     if (
       data.firstName == " " ||
@@ -45,7 +45,7 @@ const validateUser = async function (req, res, next) {
 
 const validateEmail = async function (req, res, next) {
   const email = req.body.EmailAddress;
-  console.log("Inside validate email", req.body);
+  // console.log("Inside validate email", req.body);
 
   const regex = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/;
   if (!regex.test(email)) {
@@ -59,7 +59,7 @@ const validateEmail = async function (req, res, next) {
 
 async function checkExistingUser(req, res, next) {
   const email = req.body.EmailAddress;
-  console.log("Inside validate checkExistingUser", req.body);
+  // console.log("Inside validate checkExistingUser", req.body);
 
   const user = await userServices.getUserByEmail({
     email: email,
@@ -77,7 +77,7 @@ async function validatePassword(req, res, next) {
   const regex =
     /^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g;
   const password = req.body.password;
-  console.log("Inside validate password", req.body);
+  // console.log("Inside validate password", req.body);
   
   console.log("password", password);
   if (!regex.test(password)) {
@@ -96,9 +96,68 @@ async function validatePassword(req, res, next) {
   }
 }
 
+async function userAddressValidation(req, res, next) {
+  const data = req.body;
+  const regex = /^[A-Za-z]+$/g;
+  const regexForZip = /^\d{6}$/;
+
+  if (!data.address) {
+    return res.json({
+      message: `Address is needed to add shipping detail`,
+    });
+  }
+  if (!data.zip_code) {
+    return res.json({
+      message: `Zip Code is needed add shipping detail`,
+    });
+  }
+  if (!data.city) {
+    return res.json({
+      message: `City is needed to add shipping details`,
+    });
+  }
+  if (!data.state) {
+    return res.json({
+      message: `State is needed to add shipping Details`,
+    });
+  }
+  if (!data.country) {
+    return res.json({
+      message: `Country is needed to add shipping details`,
+    });
+  }
+  if (!regex.test(data.country)) {
+    return res.json({
+      message: `Country name should be a string`,
+    });
+  }
+  if (!regex.test(data.state)) {
+    return res.json({
+      message: `state name should be a string`,
+    });
+  }
+  if (!regex.test(data.city)) {
+    return res.json({
+      message: `City name should be a string`,
+    });
+  }
+  if (!regex.test(data.address)) {
+    return res.json({
+      message: `address name should be a string`,
+    });
+  }
+  if (!regexForZip.test(data.zip_code)) {
+    return res.json({
+      message: `Zip code should be a number with not more than 6 digit`,
+    });
+  }
+  next();
+}
+
 module.exports = {
   validateUser,
   validateEmail,
   checkExistingUser,
   validatePassword,
+  userAddressValidation
 };

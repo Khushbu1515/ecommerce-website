@@ -36,9 +36,45 @@ async function getUserByEmail({ email }) {
   return user;
 }
 
+async function addAddress({ createObject }) {
+  const address = await db.Address.create(createObject);
+  return address;
+}
+
+async function updateAddress({updateOptions, whereOptions}) {
+  await db.Address.update(updateOptions, {
+    where: whereOptions,
+  });
+  const address = await db.Address.findOne({
+    where: whereOptions,
+    raw: true,
+  });
+  return address;
+}
+
+async function getUserAddress({ whereOptions }) {
+  const address = await db.Address.findOne({
+    where: whereOptions,
+    raw: true
+  });
+  return address;
+}
+
+async function deleteAddress({id}){
+  await db.Address.destroy({
+    where :{
+      id: id
+    }
+  })
+}
+
 module.exports = {
   getAll,
   updateUser,
   deleteUser,
   getUserByEmail,
+  addAddress,
+  updateAddress,
+  getUserAddress,
+  deleteAddress
 };

@@ -43,6 +43,20 @@ async function addOrderDetails(req, res) {
       },
     }
   );
+  const details = await db.OrderDetails.findAll({
+    attributes: ["id"],
+    where: {
+      uuid: uuid,
+    },
+    raw: true,
+  });
+  const logEntries = details.map((detail) => ({
+    user_id: req.userData.user_id,
+    OrderDetails_id: detail.id,
+  }));
+  
+  await db.Log.bulkCreate(logEntries);
+
   res.json({
     message: "Your order have placed",
     data: orderDetails,

@@ -7,7 +7,7 @@ const uploadImage = require('../middleware/uploadImage.middleware')
 router.post(
   "/signUp",
   [
-    uploadImage.uploadImage,
+    uploadImage.uploadImageForSignup,
     userMiddleware.validateUser,
     userMiddleware.validateEmail,
     userMiddleware.checkExistingUser,

@@ -3,18 +3,23 @@ const { v4: uuidv4 } = require("uuid");
 
 const getOrderDetails = async function ({ uuid }) {
   const details = await db.OrderDetails.findAll({
-    include: {
-      model: db.Product,
-      include: {
-        model: db.Category,
-        attributes: ["Name"],
+    include: [
+      {
+        model: db.Product,
+        include: {
+          model: db.Category,
+          attributes: ["Name"],
+        },
       },
-    },
+      {
+        model: db.Address,
+      },
+    ],
     where: {
       uuid: uuid,
     },
   });
-  console.log("Db data", details);
+  // console.log("Db data", details);
   return details;
 };
 

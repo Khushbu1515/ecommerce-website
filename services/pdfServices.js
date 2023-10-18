@@ -2,6 +2,7 @@ const pdf = require("pdf-creator-node");
 const fs = require("fs");
 const path = require("path");
 
+
 // Function to generate an invoice
 function createInvoice(data) {
   const jsonData = data;
@@ -39,6 +40,16 @@ function createInvoice(data) {
   const invoiceHTML = `
     <div class="invoice" style=" width: 80%;margin: 0 auto; border: 1px solid #000;padding: 10px;">
       <h2>Invoice</h2>
+      <p><strong>User:</strong> ${
+        jsonData[0].Order_details[0].Order.User.userName
+      }</p>
+    <p><strong>Address:</strong> 
+      ${jsonData[0].Order_details[0].Address.address}, 
+      ${jsonData[0].Order_details[0].Address.zip_code}, 
+      ${jsonData[0].Order_details[0].Address.city}, 
+      ${jsonData[0].Order_details[0].Address.state}, 
+      ${jsonData[0].Order_details[0].Address.country}
+    </p>
       <p><strong>User:</strong> ${
         jsonData[0].Order_details[0].Order.User.userName
       }</p>
