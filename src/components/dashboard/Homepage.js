@@ -391,7 +391,7 @@ const Homepage = () => {
                 <div className="profile-container">
                 <img
                 className="profileImage"
-                src={user.imageUrl} // Replace with the actual image URL property
+                src={user.images} // Replace with the actual image URL property
                 alt="User Profile"
               />
                   

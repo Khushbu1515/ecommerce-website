@@ -38,10 +38,7 @@ const Updateprofile = () => {
         if (response.status === 200) {
         console.log(response)
           setFormDatas(response.data.profile);
-          // setFormDatas({
-          //   ...formDatas,
-          //   images: response.data.profile.imageUrl
-          // });
+         
           
         }
       })
@@ -50,7 +47,7 @@ const Updateprofile = () => {
         console.error("Error fetching products:", error);
       });
   }, [user_id]);
-
+  console.log(formDatas,"....images")
   const handleChange = (e) => {
     // onchange set the data
     const { name, value } = e.target;
@@ -58,57 +55,15 @@ const Updateprofile = () => {
     setFormDatas((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleupdate = (e) => {
-    e.preventDefault();
-
-    if (
-      !formDatas.firstName ||
-      !formDatas.lastName ||
-      !formDatas.userName ||
-      !formDatas.EmailAddress ||
-      !formDatas.images
-    ) {
-      // Set error messages htmlFor empty fields
-      setErrors({
-        firstName: !formDatas.firstName ? "this is required field" : "",
-        lastName: !formDatas.lastName ? "this is required field" : "",
-        userName: !formDatas.userName ? "this is required field" : "",
-        EmailAddress: !formDatas.EmailAddress ? "this is required field" : "",
-        images: !formDatas.images ? "this is required field" : "",
-      });
-      return; // Prevent form submission
-    } else if (
-      !/^[A-Za-z]+$/.test(formDatas.firstName) ||
-      !/^[A-Za-z]+$/.test(formDatas.lastName) ||
-      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(formDatas.EmailAddress)
-    ) {
-      // Set error messages for invalid names
-      setErrors({
-        firstName: !/^[A-Za-z]+$/.test(formDatas.firstName)
-          ? "First name should only contain  desired letters"
-          : "",
-        lastName: !/^[A-Za-z]+$/.test(formDatas.lastName)
-          ? "Last name should only contain desired letters"
-          : "",
-        userName: !formDatas.userName ? "Please fill in your username" : "",
-        EmailAddress: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(
-          formDatas.EmailAddress
-        )
-          ? "Please fill desired email address"
-          : "",
-      });
-      return; // Prevent form submission
-    }
-    // Convert the image to Base64 and then submit the form
-    const imageFile = formDatas.images;
-    if (imageFile) {
+  const handleupdate = () => {
+    const imagename = formDatas.images.name;
+  
+    if (imagename) {
       const reader = new FileReader();
-
+  
       reader.onload = (event) => {
-        // The event.target.result will contain the Base64 data URL
         const base64DataUrl = event.target.result;
-
-        // Assign the Base64 data URL to your backEndProduct
+  
         const updateProduct = {
           firstName: formDatas.firstName,
           lastName: formDatas.lastName,
@@ -116,30 +71,41 @@ const Updateprofile = () => {
           password: formDatas.password,
           images: base64DataUrl,
         };
+  
+        // ... the rest of your code for making the update request
+  
+        // Send the update request with the updated 'updateProduct'
+        const jwtToken = localStorage.getItem("JWTtoken");
+        const customHeaders = {
+          authorization: `${jwtToken}`,
+          "Content-Type": "application/json",
+        };
+  
         axios
-          .post("http://localhost:3300/user/update", updateProduct)
-
+          .put("http://localhost:3300/user/update", updateProduct, {
+            headers: customHeaders,
+          })
           .then((response) => {
             if (response.status === 200) {
-              setImage(response)
+              console.log(response);
+              toast.success("Updated successfully");
+              setImage(response);
               navigate("/");
             }
           })
           .catch((error) => {
             toast.error(error.response.data.message);
-            console.error("Error fetching products:", error);
+            console.error("Error updating user:", error);
           });
       };
-      // Read the image file as a Data URL
-
-      // Read the image file as a Data URL
-      reader.readAsDataURL(imageFile);
+  
+      // Read the selected image file as a data URL
+      reader.readAsDataURL(formDatas.images);
     } else {
-      // Handle the case where no image file is selected, if needed
-      toast.error("Please select an image for the product.");
+      toast.error("Please select an image for the user.");
     }
-    // update the data as we click on the button
   };
+  
 
   // function for delete one item
   const handledelete = () => {
@@ -169,6 +135,17 @@ const Updateprofile = () => {
     const file = e.target.files[0];
     setErrors((prevErrors) => ({ ...prevErrors, images: "" }));
     setFormDatas((prevData) => ({ ...prevData, images: file }));
+    
+
+     // Update the state to store the selected file
+     setFormDatas({ ...formDatas, images: file });
+  
+     // If you also want to display the file name in a text input
+     const fileNameInput = document.getElementById('fileNameInput');
+     if (fileNameInput) {
+      fileNameInput.value = file ? file.name : 'no file selected';
+    }
+     
   };
   return (
     <div>
@@ -267,7 +244,16 @@ const Updateprofile = () => {
                           id="images"
                           className="form-control"
                           name="images"
+                          
                           onChange={handleImageChange}
+                        />
+                        <br />
+                        <input
+                          type="text"
+                          id="fileNameInput"
+                          value={formDatas.images && formDatas.images.name ? formDatas.images.name : formDatas.images}
+                          className="form-control"
+                          readOnly
                         />
                         <div className="validation">{errors.images}</div>
                       </div>

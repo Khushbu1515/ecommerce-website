@@ -9,6 +9,9 @@ import "./file.css";
 
 const Checkout = () => {
   const [carts, SetCarts] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+
+  const [address, SetAddress] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
@@ -16,20 +19,28 @@ const Checkout = () => {
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState({});
-  const [modalData, setModalData] = useState({
-    name: "",
+  const [formData, setformData] = useState({
+  
     address: "",
     state: "",
     city: "",
-    zipCode: "",
+    zip_code: "",
+    country: "",
+  });
+  const [modalData, setModalData] = useState({
+  
+    address: "",
+    state: "",
+    city: "",
+    zip_code: "",
     country: "",
   });
   const [errors, setErrors] = useState({
-    name: "",
+   
     address: "",
     state: "",
     city: "",
-    zipCode: "",
+    zip_code: "",
     country: "",
   });
   const totalCost = carts.reduce((total, cart) => total + cart.price, 0);
@@ -111,7 +122,7 @@ const Checkout = () => {
         .get("http://localhost:3300/user/checkOut", { headers: customHeaders }) // Send the 'cart' object as JSON data
         .then((response) => {
           if (response.status === 200) {
-            toast.success("placed the order successfully");
+            toast.success(response.message);
             // You can handle further actions here, such as updating the cart state
             const uuids = response.data.uuid;
 
@@ -140,7 +151,7 @@ const Checkout = () => {
       .then((cartResponse) => {
         if (cartResponse.status === 200) {
           // Both product and cart deletion were successful
-          toast.success("Delete the order successfully");
+          toast.success(cartResponse.message);
           getListCarts();
         }
       })
@@ -150,89 +161,119 @@ const Checkout = () => {
       });
   };
 
-  const handleSaveProduct = (event) => {
-    event.preventDefault();
-
+  const handleSaveProduct = () => {
+    
     if (
-      !modalData.name ||
+      
       !modalData.address ||
       !modalData.state ||
       !modalData.city ||
-      !modalData.zipCode ||
+      !modalData.zip_code ||
       !modalData.country
     ) {
-      // Set error messages for empty fields
+
       setErrors({
-        name: !modalData.name ? "this is required field" : "",
+      
         address: !modalData.address ? "this is required field" : "",
         state: !modalData.state ? "this is required field" : "",
         city: !modalData.city ? "this is required field" : "",
-        zipCode: !modalData.zipCode ? "this is required field" : "",
+        zip_code: !modalData.zip_code ? "this is required field" : "",
         country: !modalData.country ? "this is required field" : "",
       });
-      return; // Prevent form submission
+      return;
     }
-    // Validate required fields
+
     else if (
-      !/^[A-Za-z]+$/.test(modalData.name) ||
+     
       !/^[A-Za-z]+$/.test(modalData.address) ||
-      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.state) ||
-      !/^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g.test(modalData.city) ||
-      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.zipCode) ||
-      !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.country)
+      !/^[A-Za-z]+$/.test(modalData.state) ||
+      !/^[A-Za-z]+$/.test(modalData.city) ||
+      !/^\d{6}$/.test(modalData.zip_code) ||
+      !/^[A-Za-z]+$/.test(modalData.country)
     ) {
-      // Set error messages for invalid names
       setErrors({
-        name: !/^[A-Za-z]+$/.test(modalData.name)
-          ? "First name should only contain  desired letters"
-          : "",
-        address: !/^[A-Za-z]+$/.test(modalData.address)
+       
+        address: !/^[^\d]*$/.test(modalData.address)
           ? "address should only contain desired letters"
           : "",
-        state: !/^(?=.*[A-Z])(?=.*[!@#\$%^&*])(?=.*[0-9]).{8,}$/g.test(
+        state: !/^[^\d]*$/.test(
           modalData.state
         )
           ? "Please fill the correct state"
           : "",
-        city: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(modalData.city)
+        city: !/^[^\d]*$/.test(modalData.city)
           ? "Please fill desired name"
           : "",
-        zipCode: !/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}/.test(
-          modalData.zipCode
+        zip_code: !/^\d{6}$/.test(
+          modalData.zip_code
         )
           ? "Please fill  the correct zipcode"
           : "",
+          country: !/^[^\d]*$/.test(
+            modalData.country
+          )
+            ? "Please fill  the correct name"
+            : "",
       });
-      return; // Prevent form submission
+      return;
     }
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`,
+      "Content-Type": "application/json",
+    };
 
     axios
-      .post("http://localhost:3300/product/add_product", modalData)
+      .post("http://localhost:3300/user/addAddress", modalData, {
+        headers: customHeaders,
+      })
       .then((response) => {
         if (response.status === 200) {
-          toast.success("create product successfully");
+          toast.success(response.message);
 
-          // Reset the form data to empty values
           setModalData({
-            name: "",
+            
             address: "",
             state: "",
             city: "",
-            zipCode: "",
+            zip_code: "",
             country: "",
           });
           closeModal();
+          productGet();
         }
       })
-      // Read the image file as a Data URL
 
       .catch((error) => {
-        // Handle network errors or other errors
         toast.error(error.response.data.message);
         console.error("Error:", error);
       });
   };
-
+  useEffect(()=>{
+    productGet();
+  },[])
+  const productGet = () => {
+    const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .get(`http://localhost:3300/user/getAddress`, {
+        headers: customHeaders,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success(response.message);
+          SetAddress(response.data.address);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+        console.error("Error fetching products:", error);
+      });
+  };
+  
   useEffect(() => {
     const jwtToken = localStorage.getItem("JWTtoken");
     const customHeaders = {
@@ -271,11 +312,55 @@ const Checkout = () => {
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // reset the errors when we type
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
-  const handlezipchange = (zipCode) => {
-    const zip = parseInt(zipCode);
-    setErrors((prevErrors) => ({ ...prevErrors, zipCode: "" }));
-    setModalData((prevData) => ({ ...prevData, zipCode: zip }));
+  const handlezipchange = (zip_code) => {
+    const zip = parseInt(zip_code);
+    setErrors((prevErrors) => ({ ...prevErrors, zip_code: "" }));
+    setModalData((prevData) => ({ ...prevData, zip_code: zip }));
   };
+  const handleedit=(addresss)=>
+  {
+    setIsModalOpen(true)
+    setModalData(addresss)
+    // const jwtToken = localStorage.getItem("JWTtoken");
+    // const customHeaders = {
+    //   authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+    //   "Content-Type": "application/json", // Specify the content type if needed
+    // };
+    // axios
+    //   .put("http://localhost:3300/user/updateAddress",modalData, {
+    //     headers: customHeaders,
+    //   })
+    //   .then((response) => {
+    //     if (response.status === 200) {
+    //       setUser(response.data.profile);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     toast.error(error.response.data.message);
+    //     console.error("Error fetching products:", error);
+    //   });
+  }
+   const Handledelete=(id)=>
+   {
+     const jwtToken = localStorage.getItem("JWTtoken");
+    const customHeaders = {
+      authorization: `${jwtToken}`, // Replace 'YourAuthToken' with your actual authorization token
+      "Content-Type": "application/json", // Specify the content type if needed
+    };
+    axios
+      .delete(`http://localhost:3300/user/deleteAddress?address_id=${id}`, {
+        headers: customHeaders,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          productGet();
+        }
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+        console.error("Error fetching products:", error);
+      });
+   }
   return (
     <div>
       <div>
@@ -319,7 +404,7 @@ const Checkout = () => {
                   <div className="profile-container">
                     <img
                       className="profileImage"
-                      src={user.imageUrl} // Replace with the actual image URL property
+                      src={user.images} // Replace with the actual image URL property
                       alt="User Profile"
                     />
                     <div className="profile-dialog">
@@ -455,54 +540,71 @@ const Checkout = () => {
         )}
       </div>
       <div className="placed">
-        {carts.length > 0 ? (
-          <div>
-            <span>TOTAL COST: {totalCost}</span>
-            <button onClick={handleCheckout}>{buttonText}</button>
-            {showPaymentOptions && (
-              <div className="payment">
-                <p>Shipping details:</p>
-                <label>
+      {carts.length > 0 ? (
+        <div>
+          <span>TOTAL COST: {totalCost}</span>
+          <button onClick={handleCheckout}>{buttonText}</button>
+          {showPaymentOptions && (
+            <div className="payment">
+              <p>Shipping details:</p>
+              {address && (address.length <= 4 || isModalOpen) ? (
+                <div>
                   <button
                     className="product"
                     onClick={() => setIsModalOpen(true)}
                   >
-                    create shipping
+                    Create Shipping
                   </button>
-                </label>
-                <p>Choose Payment Method:</p>
-                <label>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cashOnDelivery"
-                  />
-                  Cash on Delivery
-                </label>
-              </div>
-            )}
-          </div>
-        ) : (
-          <p>Your cart is empty.</p>
-        )}
+                  <ul>
+                    {address.length > 0 &&
+                      address.map((addresss, index) => (
+                        <li key={index}>
+                          <label>
+                            <input
+                              type="radio"
+                              name="shippingAddress"
+                              value={addresss.id}
+                              checked={selectedAddress === addresss.id} 
+                              onChange={() => setSelectedAddress(addresss.id)} 
+                            />
+                            {`${addresss.address}, ${addresss.city}, ${addresss.zip_code},${addresss.state},${addresss.country}`}
+                          </label>
+                          <button onClick={() => {
+                            handleedit(addresss)
+                          }}>Edit</button>
+                          <button onClick={() => {
+                            Handledelete(addresss.id)
+                          }}>Delete</button>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ) : (
+                <p>You have too many addresses to display here.</p>
+              )}
+              <p>Choose Payment Method:</p>
+              <label>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cashOnDelivery"
+                />
+                Cash on Delivery
+              </label>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p>Your cart is empty.</p>
+      )}
+    
+    
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
               <h2 className="title">Shipping details</h2>
               <form>
-                <div className="form-group">
-                  <label htmlFor="product_name">User name:</label>
-                  <input
-                    type="text"
-                    id="product_name"
-                    className="form-control"
-                    name="name"
-                    value={modalData.name}
-                    onChange={handlechange}
-                  />
-                  <div className="validation">{errors.name}</div>
-                </div>
-                <br />
+                
 
                 <div className="form-group">
                   <label htmlFor="c_id">Address:</label>
@@ -549,10 +651,10 @@ const Checkout = () => {
                     id="state"
                     className="form-control"
                     name="zipCode"
-                    value={modalData.zipCode}
+                    value={modalData.zip_code}
                     onChange={(e) => handlezipchange(e.target.value)}
                   />
-                  <div className="validation">{errors.zipCode}</div>
+                  <div className="validation">{errors.zip_code}</div>
                 </div>
 
                 <br />
